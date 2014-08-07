@@ -20,16 +20,24 @@ var featureLayer = L.mapbox.featureLayer()
     })
     .addTo(map);
 
-function vectorLayer(points) {
+function vectors(points, velocityVectors) {
     var vectors = [];
-    var dx = 0.1;
-    var dy = 0.1;
+    var scale = 0.5;	// vector scaling (m/s -> degrees)
     for (var i=0; i<points.length; i++) {
-	endpoint = [points[i][0] + dx, points[i][1] + dy];
+	var dlat = velocityVectors.v[i] * scale;
+	var dlon = velocityVectors.u[i] * scale;
+	var endpoint = [points[i][0] + dlat, points[i][1] + dlon];
 	vectors.push([points[i], endpoint]);
     }
-    console.log(vectors);
-    L.multiPolyline(vectors).addTo(map);
+    return vectors;
+}
+
+// add a vector layer to the map at the initial grid points
+function addVectorLayer(points) {
+    $.getJSON('json_data/step0.json', function(json) {
+	L.multiPolyline(vectors(points, json))
+	    .addTo(map);
+    })
 }
 
 $.getJSON('json_data/grd_locations.json', function(json) {
@@ -37,7 +45,5 @@ $.getJSON('json_data/grd_locations.json', function(json) {
     for (var i=0; i<json['lat'].length; i++) {
 	points.push([json.lat[i], json.lon[i]]);
     }
-    vectorLayer(points);
+    addVectorLayer(points);
 });
-
-//var points = gridPoints();
