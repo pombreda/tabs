@@ -8,18 +8,21 @@ var map = L.map('map')
     .setView([27, -94], 7);
 
 // hard-coded region of interest outline
-var featureLayer = L.mapbox.featureLayer()
-    .loadURL('json_data/domain.json')
-    .on('ready', function(layer) {
-	this.eachLayer(function(poly) {
-	    poly.setStyle({
-		color: "red",
-		fill: false
-	    });
+function addRegionOutline() {
+    var featureLayer = L.mapbox.featureLayer()
+	.loadURL('json_data/domain.json')
+	.on('ready', function(layer) {
+	    this.eachLayer(function(poly) {
+		poly.setStyle({
+		    color: "red",
+		    fill: false
+		});
+	    })
 	})
-    })
-    .addTo(map);
+	.addTo(map);
+}
 
+// parse the velocity vectors and return lines in lat/lon space
 function vectors(points, velocityVectors) {
     var vectors = [];
     var scale = 0.5;	// vector scaling (m/s -> degrees)
@@ -34,12 +37,20 @@ function vectors(points, velocityVectors) {
 
 // add a vector layer to the map at the initial grid points
 function addVectorLayer(points) {
+    var vectorStyle = {
+	color: 'black',
+	weight: 1,
+    }
     $.getJSON('json_data/step0.json', function(json) {
-	L.multiPolyline(vectors(points, json))
+	L.multiPolyline(vectors(points, json), vectorStyle)
 	    .addTo(map);
     })
 }
 
+
+//addRegionOutline();
+
+// put the initial velocity vectors on the map
 $.getJSON('json_data/grd_locations.json', function(json) {
     var points = [];
     for (var i=0; i<json['lat'].length; i++) {
