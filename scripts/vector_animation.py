@@ -114,8 +114,8 @@ class mch_animation(object):
                    'lat': lat[self.idx, self.idy].tolist()}
             write_vector(grd, out_grdfile)
  
-        u = self.nc.variables['u'][self.n][-1]
-        v = self.nc.variables['v'][self.n][-1]
+        u = self.nc.variables['u'][self.n, -1, :, :]
+        v = self.nc.variables['v'][self.n, -1, :, :]
         u, v = octant.tools.shrink(u, v)
         u, v = octant.tools.rot2d(u, v, self.anglev)
 
