@@ -17,6 +17,9 @@ import octant.roms
 # length of animation (number of frames)
 NFRAMES = 90
 
+# set output precision for JSON data
+simplejson.encoder.FLOAT_REPR = lambda o: format(o, '.4f')
+
 
 class mch_animation(object):
     """docstring for MCH animation"""
