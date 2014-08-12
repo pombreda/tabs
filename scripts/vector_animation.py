@@ -17,6 +17,9 @@ import octant.roms
 # length of animation (number of frames)
 NFRAMES = 90
 
+# set output precision for JSON data
+simplejson.encoder.FLOAT_REPR = lambda o: format(o, '.4f')
+
 
 class mch_animation(object):
     """docstring for MCH animation"""
@@ -113,10 +116,7 @@ class mch_animation(object):
             grd = {'lon': lon[self.idx, self.idy].tolist(),
                    'lat': lat[self.idx, self.idy].tolist()}
             write_vector(grd, out_grdfile)
-            # set output precision for JSON time slice data
-            simplejson.encoder.FLOAT_REPR = lambda o: format(o, '.4f')
-
-
+ 
         u = self.nc.variables['u'][self.n, -1, :, :]
         v = self.nc.variables['v'][self.n, -1, :, :]
         u, v = octant.tools.shrink(u, v)
