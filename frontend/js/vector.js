@@ -9,10 +9,11 @@ var isRunning = true;
 var points = [];		// global lat/lon pairs of point locations
 var nSteps = 90;                // number of time steps to use
 var velocities = [];		// cache of velocity data
+var defaultZoom = 7;		// initial zoom level
 
 var map = L.map('map')
     .addLayer(mapboxTiles)
-    .setView([27, -94], 7);
+    .setView([27, -94], defaultZoom);
 
 // hard-coded region of interest outline
 function addRegionOutline() {
@@ -29,10 +30,17 @@ function addRegionOutline() {
         .addTo(map);
 }
 
+
+function mapScale() {
+    var scale = 0.5;     // vector scaling (m/s -> degrees) at default zoom
+    var zoom = map.getZoom();
+    return scale * Math.pow(2, defaultZoom - zoom);
+}
+
 // parse the velocity vectors and return lines in lat/lon space
 function getVectors(points, velocityVectors) {
     var vectors = [];
-    var scale = 0.5;        // vector scaling (m/s -> degrees)
+    var scale = mapScale();
     for (var i=0; i<nPoints; i++) {
         var dlat = velocityVectors.v[i] * scale;
         var dlon = velocityVectors.u[i] * scale;
