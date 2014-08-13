@@ -55,25 +55,34 @@ function addVectorLayer(points) {
         weight: 1
     };
     $.getJSON('json_data/step0.json', function(json) {
-       vectorGroup.addLayer(L.multiPolyline(getVectors(points, json), vectorStyle))
-           .addTo(map);
-       showTimeStep(1);
+        var multiCoords1 = getVectors(points, json);
+        var lines = [];
+        for (var i = 0; i < multiCoords1.length; i++) {
+            var line = L.polyline(multiCoords1[i], vectorStyle);
+            lines.push(line);
+            vectorGroup.addLayer(line);
+        }
+        vectorGroup.addTo(map);
+        showTimeStep(1);
     });
 }
 
 // update vector data at each time step
-function showTimeStep(j) {
-    var layer = vectorGroup.getLayers()[0];
-	$.getJSON('json_data/step' + j + '.json', function(json) {
-	    layer.setLatLngs(getVectors(points, json));
-	});
+function showTimeStep(i) {
+    var lines = vectorGroup.getLayers();
+    $.getJSON('json_data/step' + i + '.json', function(json) {
+        var latLngs = getVectors(points, json);
+        for (var j = 0; j < lines.length; j++) {
+            lines[j].setLatLngs(latLngs[j]);
+        }
+    });
     if (isRunning) {
-	nextj = (j + 1) % nSteps;
-	setTimeout(function(i) {
-	    return function() {
-		showTimeStep(i);
-	    }
-	}(nextj), delay);
+        nexti = (i + 1) % nSteps;
+        setTimeout(function(j) {
+            return function() {
+                showTimeStep(j);
+            }
+        }(nexti), delay);
     }
 }
 
