@@ -6,7 +6,7 @@ var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3
 var delay = 90;                 // speed of animation (larger is slower)
 var vectorGroup = L.layerGroup([]); // global layer to update vector multiPolylines
 var isRunning = true;
-var points = [];
+var points = [];		// global lat/lon pairs of point locations
 var nSteps = 90;                // number of time steps to use
 var velocities = [];		// cache of velocity data
 
