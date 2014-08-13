@@ -9,6 +9,7 @@ var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3
 var delay = 90;
 // global layer to update vector multiPolylines
 var vectorGroup = L.layerGroup([]);
+var arrowHeads;
 var isRunning = true;
 var points = [];
 // number of time steps to use
@@ -62,6 +63,16 @@ function addVectorLayer(points) {
             lines.push(line);
             vectorGroup.addLayer(line);
         }
+        arrowHeads = L.polylineDecorator(lines, {
+            patterns: [{
+                repeat: 0,
+                symbol: L.Symbol.arrowHead({pixelSize: 15,
+                    polygon: false,
+                    pathOptions: {stroke: true, color: 'black', weight: 1}}),
+                offset: 0
+            }]
+        });
+        arrowHeads.addTo(map);
         vectorGroup.addTo(map);
         showTimeStep(1);
     });
@@ -70,11 +81,13 @@ function addVectorLayer(points) {
 // update vector data at each time step
 function showTimeStep(i) {
     var lines = vectorGroup.getLayers();
+    var arrows = arrowHeads;
     $.getJSON('json_data/step' + i + '.json', function(json) {
         var latLngs = getVectors(points, json);
         for (var j = 0; j < lines.length; j++) {
             lines[j].setLatLngs(latLngs[j]);
         }
+        // arrowHeads.setPaths(latLngs);
     });
     if (isRunning) {
         nexti = (i + 1) % nSteps;
