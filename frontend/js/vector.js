@@ -8,6 +8,7 @@ var vectorGroup = L.layerGroup([]); // global layer to update vector multiPolyli
 var isRunning = true;
 var points = [];
 var nSteps = 90;                // number of time steps to use
+var velocities = [];		// cache of velocity data
 
 var map = L.map('map')
     .addLayer(mapboxTiles)
@@ -57,9 +58,14 @@ function addVectorLayer(points) {
 // update vector data at each time step
 function showTimeStep(j) {
     var layer = vectorGroup.getLayers()[0];
+    if (velocities[j] == undefined) {
         $.getJSON('json_data/step' + j + '.json', function(json) {
+	    velocities[j] = json;
             layer.setLatLngs(getVectors(points, json));
         });
+    } else {
+        layer.setLatLngs(getVectors(points, velocities[j]));
+    }
     if (isRunning) {
         nextj = (j + 1) % nSteps;
         setTimeout(function(i) {
