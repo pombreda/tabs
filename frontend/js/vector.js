@@ -14,6 +14,9 @@ var points = [];
 // number of time steps to use
 var nSteps = 90;
 
+// Fraction of vector length to make arrow strokes
+var arrowHeadSize = 0.15;
+
 var map = L.map('map',
     {center: [27, -94],
      zoom: 7,
@@ -43,10 +46,52 @@ function getVectors(points, velocityVectors) {
         var dlat = velocityVectors.v[i] * scale;
         var dlon = velocityVectors.u[i] * scale;
         var endpoint = [points[i][0] + dlat, points[i][1] + dlon];
-        vectors.push([points[i], endpoint]);
+        var tail = make_tail(points[i], endpoint);
+        // This draws the arrow shaft twice but felt noticeably faster than
+        // drawing the shaft and tail separately
+        var arrow = [tail[0], points[i], endpoint, points[i], tail[1]];
+        vectors.push(arrow);
     }
     return vectors;
 }
+
+
+function relative_angle(start, end) {
+    var dx = end[1] - start[1];
+    var dy = end[0] - start[0];
+    return Math.atan2(dy, dx);
+}
+
+function make_tail(start, end) {
+    // Return the two points needed to put a 'tail' on a line segment
+    var theta = relative_angle(start, end);
+    var p = rotate([start], -theta)[0];
+
+    var dx2 = Math.pow(end[1] - start[1], 2);
+    var dy2 = Math.pow(end[0] - start[0], 2);
+    var length = Math.sqrt(dx2 + dy2) * arrowHeadSize;
+    var lng = p[1] - length;
+    var latL = p[0] + length;
+    var latR = p[0] - length;
+
+    var tail_points = rotate([[latL, lng], [latR, lng]], theta);
+
+    return tail_points;
+}
+
+function rotate(points, theta) {
+    var c0 = Math.cos(theta);
+    var s0 = Math.sin(theta);
+    var new_points = [];
+    for (var i = 0, len = points.length; i < len; i++) {
+        var p = points[i];
+        var x2 = p[1] * c0 - p[0] * s0;
+        var y2 = p[1] * s0 + p[0] * c0;
+        new_points.push([y2, x2]);
+    }
+    return new_points;
+}
+
 
 // add a vector layer to the map at the initial grid points
 function addVectorLayer(points) {
