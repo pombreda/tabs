@@ -117,29 +117,25 @@ function addVectorLayer(points) {
 // update vector data at each time step
 function showTimeStep(i) {
     var lines = vectorGroup.getLayers();
-    $.getJSON('json_data/step' + i + '.json', function(json) {
-        var latLngs = getVectors(points, json);
-        for (var j = 0; j < lines.length; j++) {
-            lines[j].setLatLngs(latLngs[j]);
-        }
-    });
-function showTimeStep(j) {
-    var layer = vectorGroup.getLayers()[0];
-    if (velocities[j] == undefined) {
-        $.getJSON('json_data/step' + j + '.json', function(json) {
-            velocities[j] = json;
-            layer.setLatLngs(getVectors(points, json));
+    if (velocities[i] == undefined) {
+        $.getJSON('json_data/step' + i + '.json', function(json) {
+            velocities[i] = json;
+            var latLngs = getVectors(points, velocities[i]);
+            for (var j = 0; j < lines.length; j++) {
+                lines[j].setLatLngs(latLngs[j]);
+            }
         });
     } else {
-        layer.setLatLngs(getVectors(points, velocities[j]));
+        setTimeout(function() {
+            var latLngs = getVectors(points, velocities[i]);
+            for (var j = 0; j < lines.length; j++) {
+                lines[j].setLatLngs(latLngs[j]);
+            }
+        }, 0);
     }
     if (isRunning) {
         nexti = (i + 1) % nSteps;
-        setTimeout(function(j) {
-            return function() {
-                showTimeStep(j);
-            }
-        }(nexti), delay);
+        setTimeout(showTimeStep, delay, nexti);
     }
 }
 
