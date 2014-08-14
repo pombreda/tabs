@@ -13,6 +13,8 @@ var isRunning = true;
 var points = [];
 // number of time steps to use
 var nSteps = 90;
+// cache of velocity data
+var velocities = [];
 
 // Fraction of vector length to make arrow strokes
 var arrowHeadSize = 0.15;
@@ -30,10 +32,10 @@ function addRegionOutline() {
         .on('ready', function(layer) {
             this.eachLayer(function(poly) {
                 poly.setStyle({
-                    color: 'red',
+                    color: "red",
                     fill: false
                 });
-            });
+            })
         })
         .addTo(map);
 }
@@ -121,6 +123,16 @@ function showTimeStep(i) {
             lines[j].setLatLngs(latLngs[j]);
         }
     });
+function showTimeStep(j) {
+    var layer = vectorGroup.getLayers()[0];
+    if (velocities[j] == undefined) {
+        $.getJSON('json_data/step' + j + '.json', function(json) {
+            velocities[j] = json;
+            layer.setLatLngs(getVectors(points, json));
+        });
+    } else {
+        layer.setLatLngs(getVectors(points, velocities[j]));
+    }
     if (isRunning) {
         nexti = (i + 1) % nSteps;
         setTimeout(function(j) {
