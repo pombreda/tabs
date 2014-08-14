@@ -32,10 +32,10 @@ function addRegionOutline() {
         .on('ready', function(layer) {
             this.eachLayer(function(poly) {
                 poly.setStyle({
-                    color: "red",
+                    color: 'red',
                     fill: false
                 });
-            })
+            });
         })
         .addTo(map);
 }
