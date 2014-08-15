@@ -43,6 +43,55 @@ function addRegionOutline() {
 }
 
 
+var TABSControl = L.Control.extend({
+
+    initialize: function(foo, options) {
+        L.Util.setOptions(this, options);
+        this.frame = 0;
+        this.updateInfo(options);
+    },
+
+    options: {
+        position: 'topright'
+    },
+
+    onAdd: function(map) {
+        this._map = map;
+
+        // Steal the attribution CSS for now
+        var classes = 'leaflet-control-attribution leaflet-control';
+        this.container = L.DomUtil.create('div', classes);
+
+        // Toggle the run state
+        self = this;
+        this.container.onclick = function() {
+            isRunning = !isRunning;
+            if (isRunning) {
+                showTimeStep(self.frame);
+            }
+        };
+
+        this._redraw();
+        return this.container;
+    },
+
+    updateInfo: function(info) {
+        if (info) {
+            if (info.hasOwnProperty('frame')) {
+                this.frame = info.frame;
+            }
+            this._redraw();
+        }
+    },
+
+    _redraw: function() {
+        this.container.innerHTML = this.frame + ' / ' + nSteps;
+    }
+});
+
+var tabsControl = new TABSControl();
+map.addControl(tabsControl);
+
 function mapScale() {
     var scale = 0.5;     // vector scaling (m/s -> degrees) at default zoom
     var zoom = map.getZoom();
@@ -133,6 +182,7 @@ function showTimeStep(i) {
             for (var j = 0; j < lines.length; j++) {
                 lines[j].setLatLngs(latLngs[j]);
             }
+            tabsControl.updateInfo({frame: i});
         });
     } else {
         setTimeout(function() {
@@ -140,6 +190,7 @@ function showTimeStep(i) {
             for (var j = 0; j < lines.length; j++) {
                 lines[j].setLatLngs(latLngs[j]);
             }
+            tabsControl.updateInfo({frame: i});
         }, 0);
     }
     if (isRunning) {
