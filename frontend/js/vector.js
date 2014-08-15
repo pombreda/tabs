@@ -44,10 +44,11 @@ var TABSControl = L.Control.extend({
     },
 
     onAdd: function(map) {
+        this._map = map;
+
         // Steal the attribution CSS for now
         var classes = 'leaflet-control-attribution leaflet-control';
         this.container = L.DomUtil.create('div', classes);
-        this._map = map;
         this._redraw();
         return this.container;
     },
