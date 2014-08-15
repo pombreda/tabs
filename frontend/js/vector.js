@@ -31,6 +31,44 @@ function addRegionOutline() {
 }
 
 
+var TABSControl = L.Control.extend({
+
+    initialize: function(foo, options) {
+        L.Util.setOptions(this, options);
+        this.frame = 0;
+        this.updateInfo(options);
+    },
+
+    options: {
+        position: 'topright'
+    },
+
+    onAdd: function(map) {
+        // Steal the attribution CSS for now
+        var classes = 'leaflet-control-attribution leaflet-control';
+        this.container = L.DomUtil.create('div', classes);
+        this._map = map;
+        this._redraw();
+        return this.container;
+    },
+
+    updateInfo: function(info) {
+        if (info) {
+            if (info.hasOwnProperty('frame')) {
+                this.frame = info.frame;
+            }
+            this._redraw();
+        }
+    },
+
+    _redraw: function() {
+        this.container.innerHTML = this.frame + ' / ' + nSteps;
+    }
+});
+
+var tabsControl = new TABSControl();
+map.addControl(tabsControl);
+
 function mapScale() {
     var scale = 0.5;     // vector scaling (m/s -> degrees) at default zoom
     var zoom = map.getZoom();
@@ -70,10 +108,12 @@ function showTimeStep(j) {
         $.getJSON('json_data/step' + j + '.json', function(json) {
             velocities[j] = json;
             layer.setLatLngs(getVectors(points, json));
+            tabsControl.updateInfo({frame: j});
         });
     } else {
         setTimeout(function() {
             layer.setLatLngs(getVectors(points, velocities[j]));
+            tabsControl.updateInfo({frame: j});
         }, 0);
     }
     if (isRunning) {
