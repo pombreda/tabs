@@ -20,6 +20,8 @@ var defaultZoom = 7;
 
 // Fraction of vector length to make arrow strokes
 var arrowHeadSize = 0.15;
+// Radians!
+var arrowHeadAngle = 60 * Math.PI / 180;
 
 var map = L.map('map',
     {center: [27, -94],
@@ -130,9 +132,11 @@ function make_tail(start, end) {
     var dx2 = Math.pow(end[1] - start[1], 2);
     var dy2 = Math.pow(end[0] - start[0], 2);
     var length = Math.sqrt(dx2 + dy2) * arrowHeadSize;
-    var lng = p[1] - length;
-    var latL = p[0] + length;
-    var latR = p[0] - length;
+    var arrowX = length * Math.cos(arrowHeadAngle);
+    var arrowY = length * Math.sin(arrowHeadAngle);
+    var lng = p[1] - arrowX;
+    var latL = p[0] + arrowY;
+    var latR = p[0] - arrowY;
 
     var tail_points = rotate([[latL, lng], [latR, lng]], theta);
 
