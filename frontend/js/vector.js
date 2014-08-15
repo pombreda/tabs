@@ -72,7 +72,9 @@ function showTimeStep(j) {
             layer.setLatLngs(getVectors(points, json));
         });
     } else {
-        layer.setLatLngs(getVectors(points, velocities[j]));
+        setTimeout(function() {
+            layer.setLatLngs(getVectors(points, velocities[j]));
+        }, 0);
     }
     if (isRunning) {
         nextj = (j + 1) % nSteps;
