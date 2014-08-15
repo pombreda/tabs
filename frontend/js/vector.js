@@ -15,13 +15,15 @@ var points = [];
 var nSteps = 90;
 // cache of velocity data
 var velocities = [];
+// initial zoom level
+var defaultZoom = 7;
 
 // Fraction of vector length to make arrow strokes
 var arrowHeadSize = 0.15;
 
 var map = L.map('map',
     {center: [27, -94],
-     zoom: 7,
+     zoom: defaultZoom,
      layers: [mapboxTiles]
 });
 
@@ -40,10 +42,17 @@ function addRegionOutline() {
         .addTo(map);
 }
 
+
+function mapScale() {
+    var scale = 0.5;     // vector scaling (m/s -> degrees) at default zoom
+    var zoom = map.getZoom();
+    return scale * Math.pow(2, defaultZoom - zoom);
+}
+
 // parse the velocity vectors and return lines in lat/lon space
 function getVectors(points, velocityVectors) {
     var vectors = [];
-    var scale = 0.5;    // vector scaling (m/s -> degrees)
+    var scale = mapScale();
     for (var i = 0; i < nPoints; i++) {
         var dlat = velocityVectors.v[i] * scale;
         var dlon = velocityVectors.u[i] * scale;
