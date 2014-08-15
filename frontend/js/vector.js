@@ -6,13 +6,14 @@ var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3
 var delay = 90;                 // speed of animation (larger is slower)
 var vectorGroup = L.layerGroup([]); // global layer to update vector multiPolylines
 var isRunning = true;
-var points = [];		// global lat/lon pairs of point locations
+var points = [];                // global lat/lon pairs of point locations
 var nSteps = 90;                // number of time steps to use
-var velocities = [];		// cache of velocity data
+var velocities = [];                // cache of velocity data
+var defaultZoom = 7;                // initial zoom level
 
 var map = L.map('map')
     .addLayer(mapboxTiles)
-    .setView([27, -94], 7);
+    .setView([27, -94], defaultZoom);
 
 // hard-coded region of interest outline
 function addRegionOutline() {
@@ -29,10 +30,17 @@ function addRegionOutline() {
         .addTo(map);
 }
 
+
+function mapScale() {
+    var scale = 0.5;     // vector scaling (m/s -> degrees) at default zoom
+    var zoom = map.getZoom();
+    return scale * Math.pow(2, defaultZoom - zoom);
+}
+
 // parse the velocity vectors and return lines in lat/lon space
 function getVectors(points, velocityVectors) {
     var vectors = [];
-    var scale = 0.5;        // vector scaling (m/s -> degrees)
+    var scale = mapScale();
     for (var i=0; i<nPoints; i++) {
         var dlat = velocityVectors.v[i] * scale;
         var dlon = velocityVectors.u[i] * scale;
@@ -60,7 +68,7 @@ function showTimeStep(j) {
     var layer = vectorGroup.getLayers()[0];
     if (velocities[j] == undefined) {
         $.getJSON('json_data/step' + j + '.json', function(json) {
-	    velocities[j] = json;
+            velocities[j] = json;
             layer.setLatLngs(getVectors(points, json));
         });
     } else {
