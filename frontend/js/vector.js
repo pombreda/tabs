@@ -109,10 +109,9 @@ var TABSControl = L.Control.extend({
         var day_month_year = [d.getUTCDate().padLeft(),
                               monthStrings[d.getUTCMonth()],
                               d.getFullYear()].join(' ');
-        var hour_min_sec = [d.getHours().padLeft(),
-                            d.getMinutes().padLeft(),
-                            d.getSeconds().padLeft()].join(':');
-        return day_month_year + '<br/>' + hour_min_sec + ' UTC';
+        var hour_min = [d.getHours().padLeft(),
+                        d.getMinutes().padLeft()].join(':');
+        return day_month_year + '<br/>' + hour_min + ' UTC';
     }
 });
 
