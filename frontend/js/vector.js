@@ -49,6 +49,16 @@ var TABSControl = L.Control.extend({
         // Steal the attribution CSS for now
         var classes = 'leaflet-control-attribution leaflet-control';
         this.container = L.DomUtil.create('div', classes);
+
+        // Toggle the run state
+        self = this;
+        this.container.onclick = function() {
+            isRunning = !isRunning;
+            if (isRunning) {
+                showTimeStep(self.frame);
+            }
+        };
+
         this._redraw();
         return this.container;
     },
