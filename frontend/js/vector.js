@@ -81,6 +81,10 @@ var TABSControl = L.Control.extend({
             }
         };
 
+        this._map.on('viewreset', function() {
+            showTimeStep(self.frame);
+        });
+
         this._redraw();
         return this.container;
     },
