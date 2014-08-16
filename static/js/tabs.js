@@ -36,22 +36,6 @@ var map = L.map('map',
      layers: [mapboxTiles]
 });
 
-// hard-coded region of interest outline
-function addRegionOutline() {
-    var featureLayer = L.mapbox.featureLayer()
-        .loadURL('json_data/domain.json')
-        .on('ready', function(layer) {
-            this.eachLayer(function(poly) {
-                poly.setStyle({
-                    color: 'red',
-                    fill: false
-                });
-            });
-        })
-        .addTo(map);
-}
-
-
 var TABSControl = L.Control.extend({
 
     initialize: function(foo, options) {
@@ -233,7 +217,6 @@ function showTimeStep(i) {
     }
 }
 
-//addRegionOutline();
 
 // put the initial velocity vectors on the map
 $.getJSON('/data/prefetched/grid', function(json) {
