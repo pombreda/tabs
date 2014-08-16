@@ -5,6 +5,13 @@ var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3
     minZoom: 7
 });
 
+Number.prototype.padLeft = function(width, chr) {
+    var len = ((width || 2) - String(this).length) + 1;
+    return len > 0 ? new Array(len).join(chr || '0') + this : this;
+};
+var monthStrings = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+                    'Sep', 'Oct', 'Nov', 'Dec'];
+
 // speed of animation (larger is slower)
 var delay = 90;
 // global layer to update vector multiPolylines
@@ -23,6 +30,8 @@ var arrowHeadSize = 0.15;
 // Position of the barbs on the arrows ('head', 'center', 'tail')
 // Or as a fraction of distance from head to tail (head = 1, tail = 0)
 var barbLocation = 'head';
+// Radians!
+var arrowHeadAngle = 60 * Math.PI / 180;
 
 var map = L.map('map',
     {center: [27, -94],
@@ -51,6 +60,7 @@ var TABSControl = L.Control.extend({
     initialize: function(foo, options) {
         L.Util.setOptions(this, options);
         this.frame = 0;
+        this.date = new Date();
         this.updateInfo(options);
     },
 
@@ -62,7 +72,7 @@ var TABSControl = L.Control.extend({
         this._map = map;
 
         // Steal the attribution CSS for now
-        var classes = 'leaflet-control-attribution leaflet-control';
+        var classes = 'tabs-control leaflet-control-attribution leaflet-control';
         this.container = L.DomUtil.create('div', classes);
 
         // Toggle the run state
@@ -83,12 +93,30 @@ var TABSControl = L.Control.extend({
             if (info.hasOwnProperty('frame')) {
                 this.frame = info.frame;
             }
+            if (info.hasOwnProperty('date')) {
+                if (info.date[info.date.length - 1] != 'Z') {
+                    info.date += 'Z';
+                }
+                this.date = new Date(Date.parse(info.date));
+            }
             this._redraw();
         }
     },
 
     _redraw: function() {
-        this.container.innerHTML = this.frame + ' / ' + nSteps;
+        this.container.innerHTML = (
+            this._renderDate() + '<br/>' +
+            'Frame: ' + this.frame.padLeft(2) + ' / ' + nSteps);
+    },
+
+    _renderDate: function() {
+        var d = this.date;
+        var day_month_year = [d.getUTCDate().padLeft(),
+                              monthStrings[d.getUTCMonth()],
+                              d.getFullYear()].join(' ');
+        var hour_min = [d.getHours().padLeft(),
+                        d.getMinutes().padLeft()].join(':');
+        return day_month_year + '<br/>' + hour_min + ' UTC';
     }
 });
 
@@ -102,7 +130,7 @@ function mapScale() {
 }
 
 // parse the velocity vectors and return lines in lat/lon space
-function getVectors(points, velocityVectors) {
+function getDataSnapshot(points, velocityVectors) {
     var vectors = [];
     var scale = mapScale();
     for (var i = 0; i < nPoints; i++) {
@@ -134,7 +162,8 @@ function getVectors(points, velocityVectors) {
                      endpoint, points[i]];
         vectors.push(arrow);
     }
-    return vectors;
+    date = velocityVectors.date;
+    return {date: date, vectors: vectors};
 }
 
 
@@ -156,9 +185,11 @@ function make_barb(start, end, barbPosition) {
     var dx2 = Math.pow(end[1] - start[1], 2);
     var dy2 = Math.pow(end[0] - start[0], 2);
     var length = Math.sqrt(dx2 + dy2) * arrowHeadSize;
-    var lng = p[1] - length;
-    var latL = p[0] + length;
-    var latR = p[0] - length;
+    var arrowX = length * Math.cos(arrowHeadAngle);
+    var arrowY = length * Math.sin(arrowHeadAngle);
+    var lng = p[1] - arrowX;
+    var latL = p[0] + arrowY;
+    var latR = p[0] - arrowY;
 
     var barb_points = rotate([[latL, lng], p, [latR, lng]], theta);
 
@@ -186,10 +217,11 @@ function addVectorLayer(points) {
         weight: 1
     };
     $.getJSON('json_data/step0.json', function(json) {
-        var multiCoords1 = getVectors(points, json);
+        var data = getDataSnapshot(points, json);
+        var vectors = data.vectors;
         var lines = [];
-        for (var i = 0; i < multiCoords1.length; i++) {
-            var line = L.polyline(multiCoords1[i], vectorStyle);
+        for (var i = 0; i < vectors.length; i++) {
+            var line = L.polyline(vectors[i], vectorStyle);
             lines.push(line);
             vectorGroup.addLayer(line);
         }
@@ -204,19 +236,21 @@ function showTimeStep(i) {
     if (velocities[i] == undefined) {
         $.getJSON('json_data/step' + i + '.json', function(json) {
             velocities[i] = json;
-            var latLngs = getVectors(points, velocities[i]);
+            var data = getDataSnapshot(points, velocities[i]);
+            var latLngs = data.vectors;
             for (var j = 0; j < lines.length; j++) {
                 lines[j].setLatLngs(latLngs[j]);
             }
-            tabsControl.updateInfo({frame: i});
+            tabsControl.updateInfo({frame: i, date: data.date});
         });
     } else {
         setTimeout(function() {
-            var latLngs = getVectors(points, velocities[i]);
+            var data = getDataSnapshot(points, velocities[i]);
+            var latLngs = data.vectors;
             for (var j = 0; j < lines.length; j++) {
                 lines[j].setLatLngs(latLngs[j]);
             }
-            tabsControl.updateInfo({frame: i});
+            tabsControl.updateInfo({frame: i, date: data.date});
         }, 0);
     }
     if (isRunning) {
