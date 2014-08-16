@@ -135,13 +135,14 @@ function getDataSnapshot(points, velocityVectors) {
     var vectors = [];
     var scale = mapScale();
     for (var i = 0; i < nPoints; i++) {
-        var dlat = velocityVectors.v[i] * scale;
-        var dlon = velocityVectors.u[i] * scale;
+        var dlat = velocityVectors.v[i] * scale * 0.5;
+        var dlon = velocityVectors.u[i] * scale * 0.5;
         var endpoint = [points[i][0] + dlat, points[i][1] + dlon];
-        var tail = make_tail(points[i], endpoint);
+        var startpoint = [points[i][0] - dlat, points[i][1] - dlon];
+        var tail = make_tail(startpoint, endpoint);
         // This draws the arrow shaft twice but felt noticeably faster than
         // drawing the shaft and tail separately
-        var arrow = [tail[0], points[i], endpoint, points[i], tail[1]];
+        var arrow = [tail[0], startpoint, endpoint, startpoint, tail[1]];
         vectors.push(arrow);
     }
     date = velocityVectors.date;
