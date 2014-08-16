@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return redirect(url_for('static', filename='vector.html'))
+    return redirect(url_for('static', filename='tabs.html'))
 
 @app.route('/data/prefetched/step/<time_step>')
 def prefetched(time_step):
