@@ -190,7 +190,7 @@ function addVectorLayer(points) {
         color: 'black',
         weight: 1
     };
-    $.getJSON('/data/prefetched/0', function(json) {
+    $.getJSON('/data/prefetched/step/0', function(json) {
         var data = getDataSnapshot(points, json);
         var vectors = data.vectors;
         var lines = [];
@@ -208,7 +208,7 @@ function addVectorLayer(points) {
 function showTimeStep(i) {
     var lines = vectorGroup.getLayers();
     if (velocities[i] == undefined) {
-        $.getJSON('/data/prefetched/' + i, function(json) {
+        $.getJSON('/data/prefetched/step/' + i, function(json) {
             velocities[i] = json;
             var data = getDataSnapshot(points, velocities[i]);
             var latLngs = data.vectors;
@@ -236,7 +236,7 @@ function showTimeStep(i) {
 //addRegionOutline();
 
 // put the initial velocity vectors on the map
-$.getJSON('json_data/grd_locations.json', function(json) {
+$.getJSON('/data/prefetched/grid', function(json) {
     nPoints = json['lat'].length;
     for (var i = 0; i < nPoints; i++) {
         points.push([json.lat[i], json.lon[i]]);
