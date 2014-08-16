@@ -20,6 +20,9 @@ var defaultZoom = 7;
 
 // Fraction of vector length to make arrow strokes
 var arrowHeadSize = 0.15;
+// Position of the barbs on the arrows ('head', 'center', 'tail')
+// Or as a fraction of distance from head to tail (head = 1, tail = 0)
+var barbLocation = 'head';
 
 var map = L.map('map',
     {center: [27, -94],
@@ -106,10 +109,29 @@ function getVectors(points, velocityVectors) {
         var dlat = velocityVectors.v[i] * scale;
         var dlon = velocityVectors.u[i] * scale;
         var endpoint = [points[i][0] + dlat, points[i][1] + dlon];
-        var tail = make_tail(points[i], endpoint);
-        // This draws the arrow shaft twice but felt noticeably faster than
-        // drawing the shaft and tail separately
-        var arrow = [tail[0], points[i], endpoint, points[i], tail[1]];
+        switch (barbLocation) {
+            case 'tail':
+                var barbPosition = 0.0;
+                break;
+            case 'center':
+                var barbPosition = 0.5;
+                break;
+            case 'head':
+                var barbPosition = 1.0;
+                break;
+            default:
+                if (Number.isFinite(barbLocation)) {
+                    var barbPosition = Math.min(Math.max(barbLocation, 0), 1);
+                } else {
+                    var barbPosition = 1.0;
+                    console.log('Invalid barbLocation (' + barbLocation + ')');
+                }
+        }
+        var barb = make_barb(points[i], endpoint, barbPosition);
+        // Ideally we'd push the arrow and barb separately, but we really need
+        // to draw the arrow in one stroke for performance reasons
+        var arrow = [barb[0], barb[1], barb[2], barb[1],
+                     endpoint, points[i]];
         vectors.push(arrow);
     }
     return vectors;
@@ -122,10 +144,14 @@ function relative_angle(start, end) {
     return Math.atan2(dy, dx);
 }
 
-function make_tail(start, end) {
-    // Return the two points needed to put a 'tail' on a line segment
+function make_barb(start, end, barbPosition) {
+    barbPosition = barbPosition || 1.0;
+    // Return the three points needed to put a 'barb' on a line segment
+    // left tail, center, right tail
     var theta = relative_angle(start, end);
-    var p = rotate([start], -theta)[0];
+    var lat = start[0] * (1 - barbPosition) + end[0] * barbPosition;
+    var lon = start[1] * (1 - barbPosition) + end[1] * barbPosition;
+    var p = rotate([[lat, lon]], -theta)[0];
 
     var dx2 = Math.pow(end[1] - start[1], 2);
     var dy2 = Math.pow(end[0] - start[0], 2);
@@ -134,9 +160,9 @@ function make_tail(start, end) {
     var latL = p[0] + length;
     var latR = p[0] - length;
 
-    var tail_points = rotate([[latL, lng], [latR, lng]], theta);
+    var barb_points = rotate([[latL, lng], p, [latR, lng]], theta);
 
-    return tail_points;
+    return barb_points;
 }
 
 function rotate(points, theta) {
