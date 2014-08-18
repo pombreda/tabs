@@ -28,8 +28,8 @@ var defaultZoom = 7;
 // Fraction of vector length to make arrow strokes
 var arrowHeadSize = 0.15;
 // Position of the barbs on the arrows ('head', 'center', 'tail')
-// Or as a fraction of distance from head to tail (head = 1, tail = 0)
 var barbLocation = 'head';
+var barbDescriptions = {tail: 0, center: 0.5, head: 1.0};
 // Radians!
 var arrowHeadAngle = 60 * Math.PI / 180;
 
@@ -137,23 +137,14 @@ function getDataSnapshot(points, velocityVectors) {
         var dlat = velocityVectors.v[i] * scale;
         var dlon = velocityVectors.u[i] * scale;
         var endpoint = [points[i][0] + dlat, points[i][1] + dlon];
-        switch (barbLocation) {
-            case 'tail':
-                var barbPosition = 0.0;
-                break;
-            case 'center':
-                var barbPosition = 0.5;
-                break;
-            case 'head':
-                var barbPosition = 1.0;
-                break;
-            default:
-                if (Number.isFinite(barbLocation)) {
-                    var barbPosition = Math.min(Math.max(barbLocation, 0), 1);
-                } else {
-                    var barbPosition = 1.0;
-                    console.log('Invalid barbLocation (' + barbLocation + ')');
-                }
+        if (Number.isFinite(barbLocation)) {
+            var barbPosition = Math.min(Math.max(barbLocation, 0), 1);
+        } else {
+            var barbPosition = barbDescriptions[barbLocation];
+            if (barbPosition == undefined) {
+                console.log('Invalid barbLocation (' + barbLocation + ')');
+                barbPosition = 1.0;
+            }
         }
         var barb = make_barb(points[i], endpoint, barbPosition);
         // Ideally we'd push the arrow and barb separately, but we really need
