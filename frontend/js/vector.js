@@ -84,6 +84,10 @@ var TABSControl = L.Control.extend({
             }
         };
 
+        this._map.on('viewreset', function() {
+            showTimeStep(self.frame);
+        });
+
         this._redraw();
         return this.container;
     },
@@ -134,8 +138,8 @@ function getDataSnapshot(points, velocityVectors) {
     var vectors = [];
     var scale = mapScale();
     for (var i = 0; i < nPoints; i++) {
-        var dlat = velocityVectors.v[i] * scale;
-        var dlon = velocityVectors.u[i] * scale;
+        var dlat = velocityVectors.v[i] * scale * 0.5;
+        var dlon = velocityVectors.u[i] * scale * 0.5;
         var endpoint = [points[i][0] + dlat, points[i][1] + dlon];
         if (Number.isFinite(barbLocation)) {
             var barbPosition = Math.min(Math.max(barbLocation, 0), 1);
