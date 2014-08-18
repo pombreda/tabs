@@ -165,7 +165,7 @@ function relative_angle(start, end) {
 }
 
 function make_barb(start, end, barbPosition) {
-    barbPosition = barbPosition || 1.0;
+    barbPosition = barbPosition == undefined ? 1.0 : barbPosition;
     // Return the three points needed to put a 'barb' on a line segment
     // left tail, center, right tail
     var theta = relative_angle(start, end);
