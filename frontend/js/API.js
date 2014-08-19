@@ -2,10 +2,6 @@ API = (function($) {
 
     var _json = {};
 
-    function urlForFrame(frame) {
-        return 'json_data/step' + frame + '.json';
-    }
-
     function withJSON(url, callback) {
         if (_json[url] == undefined) {
             $.getJSON(url, function(json) {
@@ -27,5 +23,13 @@ API = (function($) {
         withJSON: withJSON,
         withVectorFrameJSON: withVectorFrameJSON
     };
+
+
+    // Private functions
+
+    function urlForFrame(frame) {
+        return 'json_data/step' + frame + '.json';
+    }
+
 
 }(jQuery));

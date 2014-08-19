@@ -5,8 +5,8 @@ var TABSControl = (function() {
         return len > 0 ? new Array(len).join(chr || '0') + this : this;
     };
 
-    var monthStrings = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
-                        'Sep', 'Oct', 'Nov', 'Dec'];
+    var monthStrings = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     var defaults = {
         nFrames: 0

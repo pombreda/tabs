@@ -34,16 +34,6 @@ MapView = (function($, L, API, Models) {
 
     };
 
-    function drawVectors(data, lines) {
-        setTimeout(function() {
-            var latLngs = data.vectors;
-            for (var j = 0; j < lines.length; j++) {
-                lines[j].setLatLngs(latLngs[j]);
-            }
-        }, 0);
-    }
-
-
     var MapView = function(config) {
 
         var self = this;
@@ -150,5 +140,19 @@ MapView = (function($, L, API, Models) {
     return {
         mapView: function mapView(config) { return new MapView(config); }
     };
+
+
+    // Private Functions
+
+    function drawVectors(data, lines) {
+        setTimeout(function() {
+            var latLngs = data.vectors;
+            for (var j = 0; j < lines.length; j++) {
+                lines[j].setLatLngs(latLngs[j]);
+            }
+        }, 0);
+    }
+
+
 
 }(jQuery, L, API, Models));
