@@ -40,6 +40,8 @@ MapView = (function($, L, Models) {
 
         $.extend(this, defaults, config);
 
+        this.currentFrame = 0;
+
         var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3nibphe/{z}/{x}/{y}.png', {
             attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
             maxZoom: this.maxZoom,
@@ -56,7 +58,7 @@ MapView = (function($, L, Models) {
             onclick: function onclick() {
                 self.isRunning = !self.isRunning;
                 if (self.isRunning) {
-                    self.showTimeStep(self.tabsControl.frame);
+                    self.showTimeStep();
                 }
             }
         });
@@ -121,6 +123,11 @@ MapView = (function($, L, Models) {
 
     // update vector data at each time step
     MapView.prototype.showTimeStep = function showTimeStep(i) {
+        if (i === undefined) {
+            i = this.currentFrame;
+        } else {
+            this.currentFrame = i;
+        }
         if (this.isRunning) {
             var self = this;
             self.vfs.withVectorFrame(i, self.points, self.mapScale(),
