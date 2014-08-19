@@ -39,22 +39,6 @@ var map = L.map('map',
      layers: [mapboxTiles]
 });
 
-// hard-coded region of interest outline
-function addRegionOutline() {
-    var featureLayer = L.mapbox.featureLayer()
-        .loadURL('json_data/domain.json')
-        .on('ready', function(layer) {
-            this.eachLayer(function(poly) {
-                poly.setStyle({
-                    color: 'red',
-                    fill: false
-                });
-            });
-        })
-        .addTo(map);
-}
-
-
 var TABSControl = L.Control.extend({
 
     initialize: function(foo, options) {
@@ -211,7 +195,7 @@ function addVectorLayer(points) {
         color: 'black',
         weight: 1
     };
-    $.getJSON('json_data/step0.json', function(json) {
+    $.getJSON('/data/prefetched/step/0', function(json) {
         var data = getDataSnapshot(points, json);
         var vectors = data.vectors;
         var lines = [];
@@ -229,7 +213,7 @@ function addVectorLayer(points) {
 function showTimeStep(i) {
     var lines = vectorGroup.getLayers();
     if (velocities[i] == undefined) {
-        $.getJSON('json_data/step' + i + '.json', function(json) {
+        $.getJSON('/data/prefetched/step/' + i, function(json) {
             velocities[i] = json;
             var data = getDataSnapshot(points, velocities[i]);
             var latLngs = data.vectors;
@@ -254,10 +238,9 @@ function showTimeStep(i) {
     }
 }
 
-//addRegionOutline();
 
 // put the initial velocity vectors on the map
-$.getJSON('json_data/grd_locations.json', function(json) {
+$.getJSON('/data/prefetched/grid', function(json) {
     nPoints = json['lat'].length;
     for (var i = 0; i < nPoints; i++) {
         points.push([json.lat[i], json.lon[i]]);
