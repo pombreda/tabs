@@ -70,6 +70,19 @@ Models.vectorFrameSource = (function($, API, Trig) {
         return {date: date, vectors: vectors};
     };
 
+
+    VectorFrameSource.prototype.withGridLocations = function withGridLocations(
+            callback) {
+        API.withJSON('json_data/grd_locations.json', function(data) {
+            var nPoints = data['lat'].length;
+            var points = new Array(nPoints);
+            for (var i = 0; i < nPoints; i++) {
+                points[i] = [data.lat[i], data.lon[i]];
+            }
+            callback(points);
+        });
+    };
+
     VectorFrameSource.prototype.withVectorFrame = function withVectorFrame(
             frame, points, scale, callback) {
         var self = this;

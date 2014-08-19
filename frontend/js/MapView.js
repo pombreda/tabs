@@ -64,7 +64,6 @@ MapView = (function($, L, API, Models) {
         this.tabsControl = new TABSControl.tabsControl({
             nFrames: this.nFrames,
             onclick: function onclick() {
-                console.log('onclick');
                 self.isRunning = !self.isRunning;
                 if (self.isRunning) {
                     self.showTimeStep(self.tabsControl.frame);
@@ -78,15 +77,9 @@ MapView = (function($, L, API, Models) {
             arrowHeadSize: this.arrowHeadSize,
             arrowHeadAngle: this.arrowHeadAngle});
 
-        var self = this;
-
         // put the initial velocity vectors on the map
-        API.withJSON('json_data/grd_locations.json', function(json) {
-            nPoints = json['lat'].length;
-            for (var i = 0; i < nPoints; i++) {
-                self.points.push([json.lat[i], json.lon[i]]);
-            }
-            console.log(self);
+        this.vfs.withGridLocations(function(points) {
+            self.points = points;
             self.addVectorLayer(self.points);
             self.showTimeStep(0);
         });
