@@ -57,9 +57,10 @@ var TABSControl = (function() {
         },
 
         _redraw: function() {
+            var nFrames = this.options.nFrames;
             this.container.innerHTML = (
                 this._renderDate() + '<br/>' +
-                'Frame: ' + this.frame.padLeft(2) + ' / ' + this.nFrames);
+                'Frame: ' + this.frame.padLeft(2) + ' / ' + nFrames);
         },
 
         _renderDate: function() {
