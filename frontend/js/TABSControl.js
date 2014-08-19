@@ -8,14 +8,17 @@ var TABSControl = (function() {
     var monthStrings = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
                         'Sep', 'Oct', 'Nov', 'Dec'];
 
+    var defaults = {
+        nFrames: 0
+    };
 
     var TABSControl = L.Control.extend({
 
-        initialize: function(foo, options) {
-            L.Util.setOptions(this, options);
+        initialize: function(options) {
+            L.setOptions(this, defaults);
+            L.setOptions(this, options);
             this.frame = 0;
             this.date = new Date();
-            this.updateInfo(options);
         },
 
         onAdd: function(map) {
@@ -28,13 +31,7 @@ var TABSControl = (function() {
             this.container = L.DomUtil.create('div', classes);
 
             // Toggle the run state
-            self = this;
-            this.container.onclick = function() {
-                isRunning = !isRunning;
-                if (isRunning) {
-                    showTimeStep(self.frame);
-                }
-            };
+            this.container.onclick = this.options.onclick;
 
             this._map.on('viewreset', function() {
                 showTimeStep(self.frame);
@@ -62,7 +59,7 @@ var TABSControl = (function() {
         _redraw: function() {
             this.container.innerHTML = (
                 this._renderDate() + '<br/>' +
-                'Frame: ' + this.frame.padLeft(2) + ' / ' + nSteps);
+                'Frame: ' + this.frame.padLeft(2) + ' / ' + this.nFrames);
         },
 
         _renderDate: function() {
