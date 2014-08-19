@@ -107,10 +107,8 @@ MapView = (function($, L, Models) {
         this.vfs.withVectorFrame(
                 0, points, this.mapScale(), function(data) {
             var vectors = data.vectors;
-            var lines = [];
             for (var i = 0; i < vectors.length; i++) {
                 var line = L.polyline(vectors[i], vectorStyle);
-                lines.push(line);
                 self.vectorGroup.addLayer(line);
             }
             self.vectorGroup.addTo(mapView.map);
