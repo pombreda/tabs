@@ -153,10 +153,13 @@ MapView = (function($, L, Models) {
         var self = this;
         if (this.isRunning) {
             var t = Date.now();
+
+            // XXX: Remove eventually
             if (showFPS && ((this.currentFrame % showFPS) === 0)) {
                 console.log(showFPS / ((Date.now() - self.t) / 1000));
                 self.t = t;
             }
+
             this.showTimeStep(this.currentFrame);
             this.currentFrame = (this.currentFrame + 1) % this.nFrames;
             var waitTime = Math.max(0, this.delay - (Date.now() - t));
