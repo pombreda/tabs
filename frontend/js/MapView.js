@@ -70,6 +70,11 @@ MapView = (function($, L, Models) {
             }
         });
         this.tabsControl.addTo(this.map);
+        onkeypress = function startStop(oKeyEvent) {
+            if (oKeyEvent.charCode === 32) {
+                mapView.tabsControl.options.onclick();
+            }
+        };
 
         this.vfs = Models.vectorFrameSource({
             barbLocation: this.barbLocation,
