@@ -192,12 +192,10 @@ MapView = (function($, L, Models) {
 
     function drawVectors(data, lines) {
         if (lines) {
-            lines.eachLayer(_redraw, {latLngs: data.vectors, i: 0});
+            lines.eachLayer(function _redraw(layer) {
+                layer.setLatLngs(this.latLngs[this.i++]);
+            }, {latLngs: data.vectors, i: 0});
         }
-    }
-
-    function _redraw(layer) {
-        layer.setLatLngs(this.latLngs[this.i++]);
     }
 
 
