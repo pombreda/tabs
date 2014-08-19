@@ -153,8 +153,10 @@ MapView = (function($, L, Models) {
             var t = Date.now();
 
             // XXX: Remove eventually
-            if (showFPS && self.t && ((this.currentFrame % showFPS) === 0)) {
-                console.log(showFPS / ((t - self.t) / 1000));
+            if (showFPS && ((this.currentFrame % showFPS) === 0)) {
+                if (self.t) {
+                    console.log(showFPS / ((t - self.t) / 1000));
+                }
                 self.t = t;
             }
 
