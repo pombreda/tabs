@@ -147,6 +147,7 @@ MapView = (function($, L, Models) {
 
     MapView.prototype.start = function start() {
         this.isRunning = true;
+        this.t = Date.now();
         this._run();
     };
 
@@ -154,18 +155,19 @@ MapView = (function($, L, Models) {
         var self = this;
         if (this.isRunning) {
             var t = Date.now();
-
-            // XXX: Remove eventually
-            if (showFPS && ((this.currentFrame % showFPS) === 0)) {
-                if (self.t) {
-                    console.log(showFPS / ((t - self.t) / 1000));
-                }
-                self.t = t;
-            }
-
             this.showTimeStep(this.currentFrame, function() {
                 self.currentFrame = (self.currentFrame + 1) % self.nFrames;
                 var waitTime = Math.max(0, self.delay - (Date.now() - t));
+
+                // XXX: Remove eventually
+                if (showFPS && ((self.currentFrame % showFPS) === 0)) {
+                    var fps = showFPS / ((t - self.t) / 1000);
+                    var fps = fps.toFixed(2) + ' FPS';
+                    var ms = waitTime.toFixed(0) + '/' + self.delay + 'ms';
+                    console.log(fps + '\tdelay: ' + ms);
+                    self.t = t;
+                }
+
                 setTimeout(function() {self._run()}, waitTime);
             });
         }
