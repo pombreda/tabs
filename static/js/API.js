@@ -28,7 +28,7 @@ API = (function($) {
     // Private functions
 
     function urlForFrame(frame) {
-        return 'json_data/step' + frame + '.json';
+        return '/data/prefetched/step/' + frame;
     }
 
 

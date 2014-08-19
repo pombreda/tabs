@@ -46,7 +46,7 @@ Models.vectorFrameSource = (function($, Trig) {
 
     VectorFrameSource.prototype.withGridLocations = function withGridLocations(
             callback) {
-        API.withJSON('json_data/grd_locations.json', function(data) {
+        API.withJSON(this.gridURL, function(data) {
             var nPoints = data['lat'].length;
             var points = new Array(nPoints);
             for (var i = 0; i < nPoints; i++) {

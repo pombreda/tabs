@@ -34,7 +34,9 @@ MapView = (function($, L, Models) {
 
         attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
 
-        _domain_url: '/data/prefetched/domain'
+        domainURL: '/data/prefetched/domain',
+
+        gridURL: '/data/prefetched/grid'
 
     };
 
@@ -84,7 +86,8 @@ MapView = (function($, L, Models) {
         this.vfs = Models.vectorFrameSource({
             barbLocation: this.barbLocation,
             arrowHeadSize: this.arrowHeadSize,
-            arrowHeadAngle: this.arrowHeadAngle});
+            arrowHeadAngle: this.arrowHeadAngle,
+            gridURL: this.gridURL});
 
         // put the initial velocity vectors on the map
         this.vfs.withGridLocations(function(points) {
@@ -124,7 +127,7 @@ MapView = (function($, L, Models) {
     // hard-coded region of interest outline
     MapView.prototype.addRegionOutline = function addRegionOutline() {
         var featureLayer = L.mapbox.featureLayer()
-            .loadURL(this._domain_url)
+            .loadURL(this.domainURL)
             .on('ready', function(layer) {
                 this.eachLayer(function(poly) {
                     poly.setStyle({
