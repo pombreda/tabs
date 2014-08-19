@@ -1,5 +1,5 @@
 Models = {}
-Models.vectorFrameSource = (function($, API) {
+Models.vectorFrameSource = (function($, API, Trig) {
 
     var defaults = {
         barbLocation: 'head',
@@ -13,7 +13,7 @@ Models.vectorFrameSource = (function($, API) {
         barbPosition = barbPosition == undefined ? 1.0 : barbPosition;
         // Return the three points needed to put a 'barb' on a line segment
         // left tail, center, right tail
-        var theta = relative_angle(start, end);
+        var theta = relativeAngle(start, end);
         var lat = start[0] * (1 - barbPosition) + end[0] * barbPosition;
         var lon = start[1] * (1 - barbPosition) + end[1] * barbPosition;
         var p = rotate([[lat, lon]], -theta)[0];
@@ -88,4 +88,4 @@ Models.vectorFrameSource = (function($, API) {
         return new VectorFrameSource(config);
     };
 
-}(jQuery, API));
+}(jQuery, API, Trig));

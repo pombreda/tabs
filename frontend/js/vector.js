@@ -3,7 +3,7 @@ L.mapbox.accessToken = 'pk.eyJ1IjoidGFicy1lbnRob3VnaHQiLCJhIjoidnFxYklhcyJ9.IIjR
 
 var mapView = MapView.mapView();
 
-function relative_angle(start, end) {
+function relativeAngle(start, end) {
     var dx = end[1] - start[1];
     var dy = end[0] - start[0];
     return Math.atan2(dy, dx);
