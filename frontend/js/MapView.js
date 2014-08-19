@@ -175,8 +175,7 @@ MapView = (function($, L, Models) {
         var i = self.currentFrame;
         self.vfs.withVectorFrame(i, self.points, self.mapScale(),
             function(data) {
-                drawVectors(
-                    data, self.vectorGroup.getLayers(), self.tabsControl);
+                drawVectors(data, self.vectorGroup, self.tabsControl);
                 self.tabsControl.updateInfo({frame: i, date: data.date});
                 callback && callback(data);
             }
@@ -192,14 +191,14 @@ MapView = (function($, L, Models) {
     // Private Functions
 
     function drawVectors(data, lines) {
-        setTimeout(function() {
-            var latLngs = data.vectors;
-            for (var j = 0; j < lines.length; j++) {
-                lines[j].setLatLngs(latLngs[j]);
-            }
-        }, 0);
+        if (lines) {
+            lines.eachLayer(_redraw, {latLngs: data.vectors, i: 0});
+        }
     }
 
+    function _redraw(layer) {
+        layer.setLatLngs(this.latLngs[this.i++]);
+    }
 
 
 }(jQuery, L, Models));
