@@ -114,7 +114,6 @@ MapView = (function($, L, Models) {
                 self.vectorGroup.addLayer(line);
             }
             self.vectorGroup.addTo(mapView.map);
-            self._vector_layers = self.vectorGroup.getLayers();
         });
     };
 
@@ -171,7 +170,7 @@ MapView = (function($, L, Models) {
         self.vfs.withVectorFrame(i, self.points, self.mapScale(),
             function(data) {
                 drawVectors(
-                    data, self._vector_layers, self.tabsControl);
+                    data, self.vectorGroup.getLayers(), self.tabsControl);
                 self.tabsControl.updateInfo({frame: i, date: data.date});
                 callback && callback(data);
             }
