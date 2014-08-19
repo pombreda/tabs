@@ -10,7 +10,7 @@ Models.vectorFrameSource = (function($, Trig) {
 
     function VectorFrameSource(config) {
         $.extend(this, defaults, config);
-        this._vector_frames = [];
+        this._vector_frames = {};
         this.setBarbLocation(this.barbLocation);
     };
 
@@ -58,14 +58,17 @@ Models.vectorFrameSource = (function($, Trig) {
     VectorFrameSource.prototype.withVectorFrame = function withVectorFrame(
             frame, points, scale, callback) {
         var self = this;
-        if (this._vector_frames[frame] === undefined) {
+        if (this._vector_frames[scale] === undefined) {
+            this._vector_frames[scale] = [];
+        }
+        if (this._vector_frames[scale][frame] === undefined) {
             API.withVectorFrameJSON(frame, function(obj) {
                 var vector_frame = self._getDataSnapshot(points, scale, obj);
-                self._vector_frames[frame] = vector_frame;
+                self._vector_frames[scale][frame] = vector_frame;
                 callback(vector_frame);
             });
         } else {
-            callback(self._vector_frames[frame]);
+            callback(self._vector_frames[scale][frame]);
         }
     };
 
