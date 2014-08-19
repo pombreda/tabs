@@ -34,7 +34,7 @@ MapView = (function($, L, Models) {
 
         attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
 
-        _domain_url: 'json_data/domain.json'
+        _domain_url: '/data/prefetched/domain'
 
     };
 
