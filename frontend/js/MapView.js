@@ -8,7 +8,7 @@ MapView = (function($, L, Models) {
         // global layer to update vector multiPolylines
         vectorGroup: L.layerGroup([]),
 
-        isRunning: true,
+        isRunning: false,
 
         // The locations of the data points
         points: [],
