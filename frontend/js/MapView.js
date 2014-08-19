@@ -27,8 +27,12 @@ MapView = (function($, L, Models) {
         // Fraction of vector length to make arrow strokes
         arrowHeadSize: 0.15,
 
-        // Radians!
-        arrowHeadAngle: 60 * Math.PI / 180,
+        // Degrees!
+        arrowHeadAngle: 60,
+
+        tileLayerURL: 'https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3nibphe/{z}/{x}/{y}.png',
+
+        attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
 
         _domain_url: 'json_data/domain.json'
 
@@ -42,8 +46,11 @@ MapView = (function($, L, Models) {
 
         this.currentFrame = 0;
 
-        var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3nibphe/{z}/{x}/{y}.png', {
-            attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
+        // Convert to radians
+        this.arrowHeadAngle *= Math.PI / 180;
+
+        var mapboxTiles = L.tileLayer(this.tileLayerURL, {
+            attribution: this.attribution,
             maxZoom: this.maxZoom,
             minZoom: this.minZoom
         });
