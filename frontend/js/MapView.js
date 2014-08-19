@@ -137,9 +137,9 @@ MapView = (function($, L, Models) {
     };
 
     // update vector data at each time step
-    MapView.prototype.showTimeStep = function showTimeStep(i) {
+    MapView.prototype.showTimeStep = function showTimeStep(i, callback) {
         this.currentFrame = i;
-        this.redraw();
+        this.redraw(callback);
     };
 
     MapView.prototype.start = function start() {
@@ -158,10 +158,11 @@ MapView = (function($, L, Models) {
                 self.t = t;
             }
 
-            this.showTimeStep(this.currentFrame);
-            this.currentFrame = (this.currentFrame + 1) % this.nFrames;
-            var waitTime = Math.max(0, this.delay - (Date.now() - t));
-            setTimeout(function() {self._run()}, waitTime);
+            this.showTimeStep(this.currentFrame, function() {
+                self.currentFrame = (self.currentFrame + 1) % self.nFrames;
+                var waitTime = Math.max(0, self.delay - (Date.now() - t));
+                setTimeout(function() {self._run()}, waitTime);
+            });
         }
     };
 
