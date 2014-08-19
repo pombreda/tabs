@@ -33,10 +33,6 @@ var TABSControl = (function() {
             // Toggle the run state
             this.container.onclick = this.options.onclick;
 
-            this._map.on('viewreset', function() {
-                showTimeStep(self.frame);
-            });
-
             this._redraw();
             return this.container;
         },

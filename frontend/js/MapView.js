@@ -60,13 +60,18 @@ MapView = (function($, L, Models) {
                                  zoom: this.defaultZoom,
                                  layers: [mapboxTiles]});
 
+        // Re-render when map conditions change
+        this.map.on('viewreset', function() {
+            if (!self.isRunning) {
+                self.redraw();
+            }
+        });
+
+
         this.tabsControl = new TABSControl.tabsControl({
             nFrames: this.nFrames,
             onclick: function onclick() {
-                self.isRunning = !self.isRunning;
-                if (self.isRunning) {
-                    self.showTimeStep();
-                }
+                self.isRunning ? self.stop() : self.start();
             }
         });
         this.tabsControl.addTo(this.map);
@@ -109,6 +114,7 @@ MapView = (function($, L, Models) {
                 self.vectorGroup.addLayer(line);
             }
             self.vectorGroup.addTo(mapView.map);
+            self._vector_layers = self.vectorGroup.getLayers();
         });
     };
 
@@ -135,24 +141,41 @@ MapView = (function($, L, Models) {
 
     // update vector data at each time step
     MapView.prototype.showTimeStep = function showTimeStep(i) {
-        if (i === undefined) {
-            i = this.currentFrame;
-        } else {
-            this.currentFrame = i;
-        }
+        this.currentFrame = i;
+        this.redraw();
+    };
+
+    MapView.prototype.start = function start() {
+        this.isRunning = true;
+        this._run();
+    };
+
+    MapView.prototype._run = function _run() {
+        var self = this;
         if (this.isRunning) {
-            var self = this;
-            self.vfs.withVectorFrame(i, self.points, self.mapScale(),
-                function(data) {
-                    drawVectors(
-                        data, self.vectorGroup.getLayers(), self.tabsControl);
-                    self.tabsControl.updateInfo({frame: i, date: data.date});
-                    var nexti = (i + 1) % self.nFrames;
-                    function go() { self.showTimeStep(nexti); }
-                    setTimeout(go, self.delay);
-                }
-            );
+            var t = Date.now();
+            this.showTimeStep(this.currentFrame);
+            this.currentFrame = (this.currentFrame + 1) % this.nFrames;
+            var waitTime = Math.max(0, this.delay - (Date.now() - t));
+            setTimeout(function() {self._run()}, waitTime);
         }
+    };
+
+    MapView.prototype.stop = function stop() {
+        this.isRunning = false;
+    };
+
+    MapView.prototype.redraw = function redraw(callback) {
+        var self = this;
+        var i = self.currentFrame;
+        self.vfs.withVectorFrame(i, self.points, self.mapScale(),
+            function(data) {
+                drawVectors(
+                    data, self._vector_layers, self.tabsControl);
+                self.tabsControl.updateInfo({frame: i, date: data.date});
+                callback && callback(data);
+            }
+        );
     };
 
 
