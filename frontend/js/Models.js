@@ -19,19 +19,20 @@ Models.vectorFrameSource = (function($, Trig) {
     VectorFrameSource.prototype._getDataSnapshot = function _getDataSnapshot(
             points, scale, velocityVectors) {
         var nPoints = points.length;
-        var vectors = new Array(nPoints);
+        var vectors = [];
         for (var i = 0; i < nPoints; i++) {
             var dlat = velocityVectors.v[i] * scale * 0.5;
             var dlon = velocityVectors.u[i] * scale * 0.5;
             var endpoint = [points[i][0] + dlat, points[i][1] + dlon];
+            var startpoint = [points[i][0] - dlat, points[i][1] - dlon];
 
-            var barb = make_barb(points[i], endpoint, this.barbPosition,
+            var barb = make_barb(startpoint, endpoint, this.barbPosition,
                                  this.arrowHeadSize, this.arrowHeadAngle);
             // Ideally we'd push the arrow and barb separately, but we really
             // need to draw the arrow in one stroke for performance reasons
             var arrow = [barb[0], barb[1], barb[2], barb[1],
-                         endpoint, points[i]];
-            vectors[i] = arrow;
+                         endpoint, startpoint];
+            vectors.push(arrow);
         }
         date = velocityVectors.date;
         return {date: date, vectors: vectors};
