@@ -1,4 +1,4 @@
-MapView = (function($, L, API, Models) {
+MapView = (function($, L, Models) {
 
     var defaults = {
 
@@ -155,4 +155,4 @@ MapView = (function($, L, API, Models) {
 
 
 
-}(jQuery, L, API, Models));
+}(jQuery, L, Models));
