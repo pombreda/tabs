@@ -131,18 +131,19 @@ MapView = (function($, L, API, Models) {
 
     // update vector data at each time step
     MapView.prototype.showTimeStep = function showTimeStep(i) {
-        var self = this;
-        self.vfs.withVectorFrame(i, self.points, self.mapScale(),
-            function(data) {
-                drawVectors(
-                    data, self.vectorGroup.getLayers(), self.tabsControl);
-                self.tabsControl.updateInfo({frame: i, date: data.date});
-                if (self.isRunning) {
+        if (this.isRunning) {
+            var self = this;
+            self.vfs.withVectorFrame(i, self.points, self.mapScale(),
+                function(data) {
+                    drawVectors(
+                        data, self.vectorGroup.getLayers(), self.tabsControl);
+                    self.tabsControl.updateInfo({frame: i, date: data.date});
                     var nexti = (i + 1) % self.nFrames;
                     function go() { self.showTimeStep(nexti); }
                     setTimeout(go, self.delay);
                 }
-            });
+            );
+        }
     };
 
 
