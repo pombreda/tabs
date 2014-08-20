@@ -67,7 +67,7 @@ class THREDDS_CONNECTION(object):
     mch = property(**mch())
 
 
-tc = THREDDS_CONNECTION(data_uri=vector_frame.DEFALUT_DATA_URI)
+tc = THREDDS_CONNECTION(data_uri=vector_frame.DEFAULT_DATA_URI)
 
 
 @app.route('/')

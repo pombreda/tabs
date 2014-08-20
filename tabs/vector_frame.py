@@ -13,7 +13,7 @@ import netCDF4 as netCDF
 from octant_lite import rot2d, shrink
 
 # Data File
-DEFALUT_DATA_URI = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesting6.nc'  # noqa
+DEFAULT_DATA_URI = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesting6.nc'  # noqa
 
 # length of animation (number of frames)
 NFRAMES = 90
@@ -21,7 +21,7 @@ NFRAMES = 90
 
 class THREDDSVectorFrameSource(object):
 
-    def __init__(self, data_uri=DEFALUT_DATA_URI, decimate_factor=1,
+    def __init__(self, data_uri=DEFAULT_DATA_URI, decimate_factor=1,
                  grdfile=None):
         self.data_uri = data_uri
         self.decimate_factor = decimate_factor
@@ -101,7 +101,7 @@ def write_vector(vector, outfile):
 
 def main():
     np.random.seed(0xDEADBEEF)
-    vector_frame_source = THREDDSVectorFrameSource(DEFALUT_DATA_URI,
+    vector_frame_source = THREDDSVectorFrameSource(DEFAULT_DATA_URI,
                                                    decimate_factor=60)
     write_vector(vector_frame_source.grid, 'grd_locations.json')
 
