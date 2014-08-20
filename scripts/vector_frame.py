@@ -70,8 +70,6 @@ class mch_animation(object):
         self.grid = {'lon': lon[self.idx, self.idy].tolist(),
                      'lat': lat[self.idx, self.idy].tolist()}
 
-
-
     def plot_vector_surface(self, n):
         self.n = n
         # Why can't we fancy slice here? [..., self.idx, self.idy]
@@ -102,6 +100,7 @@ def write_vector(vector, outfile):
 
 
 def main():
+    np.random.seed(0xDEADBEEF)
     mch = mch_animation(data_file, decimate_factor=60)
     write_vector(mch.grid, 'grd_locations.json')
 
