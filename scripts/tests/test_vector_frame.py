@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import glob
 import subprocess
 
 import numpy as np
@@ -12,17 +13,14 @@ import vector_frame
 np.random.seed(0xDEADBEEF)
 vector_frame.NFRAMES = 1
 
-TEST_FILES = [os.path.join('json_data', f)
-              for f in ('step0.json', 'grd_locations.json')]
+TEST_FILES = glob.glob('json_data/step*.json')
+TEST_FILES.append('json_data/grd_locations.json')
 
 
 def remove_old():
     for f in TEST_FILES:
-        os.unlink(f)
-
-
-def tearDown():
-    remove_old()
+        if os.path.isfile(f):
+            os.unlink(f)
 
 
 def diff_file(f):
@@ -35,6 +33,9 @@ def diff_file(f):
 
 
 def test_files():
-    vector_frame.main()
-    for f in TEST_FILES:
-        yield diff_file, f
+    try:
+        vector_frame.main()
+        for f in TEST_FILES:
+            yield diff_file, f
+    finally:
+        remove_old()
