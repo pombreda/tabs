@@ -13,8 +13,6 @@ import netCDF4 as netCDF
 
 from octant_lite import rot2d, shrink
 
-np.random.seed(0xDEADBEEF)
-
 
 # length of animation (number of frames)
 NFRAMES = 1
@@ -158,8 +156,7 @@ def write_vector(vector, outfile):
         json.dump(vector, f)
 
 
-if __name__ == '__main__':
-
+def main():
     data_file = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesting6.nc'  # noqa
     dir_name = 'vector_frames'
     mch = mch_animation(data_file, dir_name)
@@ -170,3 +167,7 @@ if __name__ == '__main__':
         vector = mch.plot_vector_surface()
         write_vector(vector, 'step{}.json'.format(mch.n))
         mch.close_frame()
+
+
+if __name__ == '__main__':
+    main()
