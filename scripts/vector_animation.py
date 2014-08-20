@@ -16,7 +16,7 @@ import netCDF4 as netCDF
 from octant_lite import rot2d, shrink
 
 # length of animation (number of frames)
-NFRAMES = 1
+NFRAMES = 90
 
 # set output precision for JSON data
 json.encoder.FLOAT_REPR = lambda o: format(o, '.4f')
