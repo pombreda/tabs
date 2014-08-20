@@ -13,13 +13,10 @@ import netCDF4 as netCDF
 from octant_lite import rot2d, shrink
 
 # Data File
-data_file = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesting6.nc'  # noqa
+DEFALUT_DATA_URI = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesting6.nc'  # noqa
 
 # length of animation (number of frames)
 NFRAMES = 90
-
-# set output precision for JSON data
-json.encoder.FLOAT_REPR = lambda o: format(o, '.4f')
 
 
 class mch_animation(object):
@@ -27,9 +24,13 @@ class mch_animation(object):
 
     figsize = (8, 6)
 
-    def __init__(self, ncfile, decimate_factor=1, grdfile=None):
-        self.ncfile = ncfile
-        self.nc = netCDF.Dataset(ncfile)
+    def __init__(self, data_uri=DEFALUT_DATA_URI, decimate_factor=1,
+                 grdfile=None):
+        self.data_uri = data_uri
+        self.decimate_factor = decimate_factor
+
+        self.ncfile = data_uri
+        self.nc = netCDF.Dataset(data_uri)
 
         if grdfile is None:
             self.ncg = self.nc
@@ -61,7 +62,7 @@ class mch_animation(object):
         idv = np.arange(len(idx))
         np.random.shuffle(idv)
 
-        Nvec = len(idx) / decimate_factor
+        Nvec = len(idx) / self.decimate_factor
         idv = idv[:Nvec]
         self.idx = idx[idv]
         self.idy = idy[idv]
@@ -101,7 +102,7 @@ def write_vector(vector, outfile):
 
 def main():
     np.random.seed(0xDEADBEEF)
-    mch = mch_animation(data_file, decimate_factor=60)
+    mch = mch_animation(DEFALUT_DATA_URI, decimate_factor=60)
     write_vector(mch.grid, 'grd_locations.json')
 
     for tidx in range(NFRAMES):

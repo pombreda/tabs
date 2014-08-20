@@ -1,5 +1,5 @@
 import json
-from threading import Timer
+from threading import Timer, RLock
 
 from flask import Flask, redirect, url_for
 
@@ -11,29 +11,63 @@ app = Flask(__name__)
 # We should probably maintain a connection for at least a short while
 class THREDDS_CONNECTION(object):
 
-    def __init__(self, url):
-        self._url = url
+    def __init__(self, timeout=60, **mch_args):
+        """ Create an expiring connection to the THREDDS server.
+
+        The connection will drop after 60 seconds of non-use. Any subsequent
+        attempt to use the connection will initiate a new one. Access to the
+        connection is RLock'd to ensure only one connection is alive at a time.
+
+        Parameters:
+        timeout : int, seconds
+            The lenght of time in seconds to hold open a connection.
+
+        Remaining keyword args are passed to the connection's constructor.
+        """
         self._mch = None
+        self._mch_lock = RLock()
+        self._mch_args = mch_args
         self._timer = None
+        self.timeout = float(timeout)
 
     def _forget(self):
-        self._timer = None
+        app.logger.info("Closing THREDDS connection")
+        if self._timer:
+            self._timer.cancel()
+            self._timer = None
         self._mch = None
 
     def _reset_timer(self):
+        app.logger.info("Resetting THREDDS connection timer")
         if self._timer:
             self._timer.cancel()
-        self._timer = Timer(10, self._forget)
+        self._timer = Timer(self.timeout, self._forget)
+        self._timer.start()
 
-    @property
-    def mch(self):
-        if not self._mch:
-            self._mch = vector_frame.mch_animation(self._url)
-        self._reset_timer()
-        return self._mch
+    def mch():
+        doc = "The mch property."
+
+        def fget(self):
+            with self._mch_lock:
+                if not self._mch:
+                    app.logger.info("Opening new THREDDS connection")
+                    self._mch = vector_frame.mch_animation(**self._mch_args)
+                self._reset_timer()
+                return self._mch
+
+        def fset(self, value):
+            with self._mch_lock:
+                self._mch = value
+                return self.mch
+
+        def fdel(self):
+            with self._mch_lock:
+                self._forget()
+        return locals()
+    mch = property(**mch())
 
 
-tc = THREDDS_CONNECTION(vector_frame.data_file)
+tc = THREDDS_CONNECTION(data_uri=vector_frame.DEFALUT_DATA_URI)
 
 
 @app.route('/')
