@@ -75,10 +75,12 @@ def index():
     return redirect(url_for('static', filename='tabs.html'))
 
 
-@app.route('/data/thredds/step/<time_step>')
+@app.route('/data/thredds/step/<int:time_step>')
 def thredds_vector_frame(time_step):
-    v = tc.mch.plot_vector_surface(time_step)
-    return json.dumps(v)
+    vector = tc.mch.plot_vector_surface(time_step)
+    vector['u'] = vector['u'].round(4).tolist()
+    vector['v'] = vector['v'].round(4).tolist()
+    return json.dumps(vector)
 
 
 @app.route('/data/prefetched/step/<time_step>')

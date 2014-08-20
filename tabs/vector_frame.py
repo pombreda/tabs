@@ -71,17 +71,16 @@ class mch_animation(object):
         self.grid = {'lon': lon[self.idx, self.idy].tolist(),
                      'lat': lat[self.idx, self.idy].tolist()}
 
-    def plot_vector_surface(self, n):
-        self.n = n
+    def plot_vector_surface(self, frame_number):
         # Why can't we fancy slice here? [..., self.idx, self.idy]
-        u = self.nc.variables['u'][self.n, -1, :, :]
-        v = self.nc.variables['v'][self.n, -1, :, :]
+        u = self.nc.variables['u'][frame_number, -1, :, :]
+        v = self.nc.variables['v'][frame_number, -1, :, :]
         u, v = shrink(u, v)
         u, v = rot2d(u, v, self.anglev)
 
-        vector = {'date': self.dates[self.n].isoformat(),
-                  'u': u[self.idx, self.idy].tolist(),
-                  'v': v[self.idx, self.idy].tolist()}
+        vector = {'date': self.dates[frame_number].isoformat(),
+                  'u': u[self.idx, self.idy],
+                  'v': v[self.idx, self.idy]}
         return vector
 
     def __del__(self):
@@ -96,6 +95,9 @@ def write_vector(vector, outfile):
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
     filename = os.path.join(out_dir, outfile)
+    vector = vector.copy()
+    vector['u'] = vector['u'].round(4).tolist()
+    vector['v'] = vector['v'].round(4).tolist()
     with open(filename, 'w') as f:
         json.dump(vector, f)
 
