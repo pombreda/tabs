@@ -10,11 +10,10 @@ import numpy as np
 import vector_frame
 
 
-np.random.seed(0xDEADBEEF)
-vector_frame.NFRAMES = 1
+TEST_FILES = [f.replace('ref_', '') for f in glob.glob('json_data/*.json')]
 
-TEST_FILES = glob.glob('json_data/step*.json')
-TEST_FILES.append('json_data/grd_locations.json')
+np.random.seed(0xDEADBEEF)
+vector_frame.NFRAMES = len([f for f in TEST_FILES if 'step' in f])
 
 
 def remove_old():
@@ -27,7 +26,7 @@ def diff_file(f):
     d, fname = os.path.split(f)
     f_ref = os.path.join(d, 'ref_' + fname)
     try:
-        subprocess.check_call(['diff', f, f_ref])
+        subprocess.check_call(['diff', f_ref, f])
     except:
         raise AssertionError("Files differ: {!r} {!r}".format(f, f_ref))
 
