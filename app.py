@@ -60,5 +60,12 @@ def static_grid():
     filename = 'json_data/grd_locations.json'
     return redirect(url_for('static', filename=filename))
 
+
+@app.route('/data/prefetched/domain')
+def domain():
+    """ Return the domain outline """
+    filename = 'json_data/domain.json'
+    return redirect(url_for('static', filename=filename))
+
 if __name__ == '__main__':
     app.run(debug=True)
