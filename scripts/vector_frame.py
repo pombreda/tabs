@@ -12,6 +12,8 @@ import netCDF4 as netCDF
 
 from octant_lite import rot2d, shrink
 
+# Data File
+data_file = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesting6.nc'  # noqa
 
 # length of animation (number of frames)
 NFRAMES = 90
@@ -25,7 +27,7 @@ class mch_animation(object):
 
     figsize = (8, 6)
 
-    def __init__(self, ncfile, grdfile=None):
+    def __init__(self, ncfile, decimate_factor=1, grdfile=None):
         self.ncfile = ncfile
         self.nc = netCDF.Dataset(ncfile)
 
@@ -47,38 +49,32 @@ class mch_animation(object):
                                resolution='i',
                                area_thresh=0.)
 
-        self.frame = 0
+        maskv = self.ncg.variables['mask_psi'][:]
+        lon = self.ncg.variables['lon_psi'][:]
+        lat = self.ncg.variables['lat_psi'][:]
 
-    def new_frame(self, n):
-        """docstring for new_frame"""
+        # What is happening here? Why is this necessary?
+        self.anglev = shrink(self.ncg.variables['angle'][:], lon.shape)
+
+        idx, idy = np.where(maskv == 1.0)
+
+        idv = np.arange(len(idx))
+        np.random.shuffle(idv)
+
+        Nvec = len(idx) / decimate_factor
+        idv = idv[:Nvec]
+        self.idx = idx[idv]
+        self.idy = idy[idv]
+
+        # save the grid locations as JSON file
+        self.grid = {'lon': lon[self.idx, self.idy].tolist(),
+                     'lat': lat[self.idx, self.idy].tolist()}
+
+
+
+    def plot_vector_surface(self, n):
         self.n = n
-
-    def close_frame(self):
-        print(' ... wrote frame {}'.format(self.frame))
-        self.frame += 1
-
-    def plot_vector_surface(self):
-        decimate_factor = 60
-
-        if self.frame == 0:
-            lon = self.ncg.variables['lon_psi'][:]
-            lat = self.ncg.variables['lat_psi'][:]
-            xv, yv = self.basemap(lon, lat)
-            maskv = self.ncg.variables['mask_psi'][:]
-            self.anglev = shrink(self.ncg.variables['angle'][:], xv.shape)
-            idx, idy = np.where(maskv == 1.0)
-            idv = np.arange(len(idx))
-            np.random.shuffle(idv)
-            Nvec = len(idx) / decimate_factor
-            idv = idv[:Nvec]
-            self.idx = idx[idv]
-            self.idy = idy[idv]
-            # save the grid locations as JSON file
-            out_grdfile = 'grd_locations.json'
-            grd = {'lon': lon[self.idx, self.idy].tolist(),
-                   'lat': lat[self.idx, self.idy].tolist()}
-            write_vector(grd, out_grdfile)
-
+        # Why can't we fancy slice here? [..., self.idx, self.idy]
         u = self.nc.variables['u'][self.n, -1, :, :]
         v = self.nc.variables['v'][self.n, -1, :, :]
         u, v = shrink(u, v)
@@ -106,15 +102,14 @@ def write_vector(vector, outfile):
 
 
 def main():
-    data_file = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesting6.nc'  # noqa
-    mch = mch_animation(data_file)
+    mch = mch_animation(data_file, decimate_factor=60)
+    write_vector(mch.grid, 'grd_locations.json')
 
     for tidx in range(NFRAMES):
         print(tidx)
-        mch.new_frame(tidx)
-        vector = mch.plot_vector_surface()
+        vector = mch.plot_vector_surface(tidx)
         write_vector(vector, 'step{}.json'.format(mch.n))
-        mch.close_frame()
+        print(' ... wrote frame {}'.format(mch.n))
 
 
 if __name__ == '__main__':
