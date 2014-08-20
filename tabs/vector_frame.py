@@ -19,10 +19,7 @@ DEFALUT_DATA_URI = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesti
 NFRAMES = 90
 
 
-class mch_animation(object):
-    """docstring for MCH animation"""
-
-    figsize = (8, 6)
+class THREDDSVectorFrameSource(object):
 
     def __init__(self, data_uri=DEFALUT_DATA_URI, decimate_factor=1,
                  grdfile=None):
@@ -104,14 +101,15 @@ def write_vector(vector, outfile):
 
 def main():
     np.random.seed(0xDEADBEEF)
-    mch = mch_animation(DEFALUT_DATA_URI, decimate_factor=60)
-    write_vector(mch.grid, 'grd_locations.json')
+    vector_frame_source = THREDDSVectorFrameSource(DEFALUT_DATA_URI,
+                                                   decimate_factor=60)
+    write_vector(vector_frame_source.grid, 'grd_locations.json')
 
     for tidx in range(NFRAMES):
         print(tidx)
-        vector = mch.plot_vector_surface(tidx)
-        write_vector(vector, 'step{}.json'.format(mch.n))
-        print(' ... wrote frame {}'.format(mch.n))
+        vector = vector_frame_source.plot_vector_surface(tidx)
+        write_vector(vector, 'step{}.json'.format(vector_frame_source.n))
+        print(' ... wrote frame {}'.format(vector_frame_source.n))
 
 
 if __name__ == '__main__':
