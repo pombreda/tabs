@@ -86,6 +86,11 @@ def index():
     return redirect(url_for('static', filename='tabs.html'))
 
 
+@app.route('/data/thredds/grid')
+def thredds_grid():
+    return json.dumps(jsonify_dict_of_array(tc.vfs.grid))
+
+
 @app.route('/data/thredds/step/<int:time_step>')
 def thredds_vector_frame(time_step):
     vs = tc.vfs.plot_vector_surface(time_step)

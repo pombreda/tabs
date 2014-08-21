@@ -36,7 +36,7 @@ MapView = (function($, L, Models) {
 
         domainURL: '/data/prefetched/domain',
 
-        gridURL: '/data/prefetched/grid'
+        gridURL: '/data/thredds/grid'
 
     };
 
