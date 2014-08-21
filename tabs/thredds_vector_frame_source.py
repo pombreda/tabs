@@ -133,8 +133,8 @@ def main(NFRAMES=90):
     for tidx in range(NFRAMES):
         print(tidx)
         vector = vector_frame_source.plot_vector_surface(tidx)
-        write_vector(vector, 'step{}.json'.format(vector_frame_source.n))
-        print(' ... wrote frame {}'.format(vector_frame_source.n))
+        write_vector(vector, 'step{}.json'.format(tidx))
+        print(' ... wrote frame {}'.format(tidx))
 
 
 if __name__ == '__main__':
