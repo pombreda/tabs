@@ -14,7 +14,8 @@ MapView = (function($, L, Models) {
         points: [],
 
         // number of time steps to use
-        nFrames: 90,
+        // nFrames: 90,
+        nFrames: 6,
 
         // initial zoom level
         minZoom: 7,
