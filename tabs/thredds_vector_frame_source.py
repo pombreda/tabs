@@ -90,8 +90,9 @@ def write_vector(vector, outfile):
         os.mkdir(out_dir)
     filename = os.path.join(out_dir, outfile)
     vector = vector.copy()
-    vector['u'] = vector['u'].round(4).tolist()
-    vector['v'] = vector['v'].round(4).tolist()
+    for k in vector:
+        if isinstance(vector[k], np.ndarray):
+            vector[k] = vector[k].round(4).tolist()
     with open(filename, 'w') as f:
         json.dump(vector, f)
 
