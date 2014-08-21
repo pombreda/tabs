@@ -8,6 +8,8 @@ from tabs import thredds_vector_frame_source
 
 app = Flask(__name__)
 
+RANDOM_STATE = np.random.get_state()
+
 
 # We should probably maintain a connection for at least a short while
 class THREDDS_CONNECTION(object):
@@ -52,6 +54,8 @@ class THREDDS_CONNECTION(object):
             with self._vfs_lock:
                 if not self._vfs:
                     app.logger.info("Opening new THREDDS connection")
+                    # Ensure that we get the same ordering of grid points
+                    np.random.set_state(RANDOM_STATE)
                     cls = thredds_vector_frame_source.THREDDSVectorFrameSource
                     self._vfs = cls(**self._vfs_args)
                 self._reset_timer()
