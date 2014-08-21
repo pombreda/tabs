@@ -3,7 +3,7 @@ from threading import Timer, RLock
 
 from flask import Flask, redirect, url_for
 
-from tabs import vector_frame
+from tabs import thredds_vector_frame_source
 
 app = Flask(__name__)
 
@@ -11,7 +11,7 @@ app = Flask(__name__)
 # We should probably maintain a connection for at least a short while
 class THREDDS_CONNECTION(object):
 
-    def __init__(self, timeout=60, **mch_args):
+    def __init__(self, timeout=60, **vfs_args):
         """ Create an expiring connection to the THREDDS server.
 
         The connection will drop after 60 seconds of non-use. Any subsequent
@@ -24,9 +24,9 @@ class THREDDS_CONNECTION(object):
 
         Remaining keyword args are passed to the connection's constructor.
         """
-        self._mch = None
-        self._mch_lock = RLock()
-        self._mch_args = mch_args
+        self._vfs = None
+        self._vfs_lock = RLock()
+        self._vfs_args = vfs_args
         self._timer = None
         self.timeout = float(timeout)
 
@@ -35,7 +35,7 @@ class THREDDS_CONNECTION(object):
         if self._timer:
             self._timer.cancel()
             self._timer = None
-        self._mch = None
+        self._vfs = None
 
     def _reset_timer(self):
         app.logger.info("Resetting THREDDS connection timer")
@@ -44,30 +44,31 @@ class THREDDS_CONNECTION(object):
         self._timer = Timer(self.timeout, self._forget)
         self._timer.start()
 
-    def mch():
-        doc = "The mch property."
+    def vfs():
+        doc = "The vfs property."
 
         def fget(self):
-            with self._mch_lock:
-                if not self._mch:
+            with self._vfs_lock:
+                if not self._vfs:
                     app.logger.info("Opening new THREDDS connection")
-                    self._mch = vector_frame.mch_animation(**self._mch_args)
+                    cls = thredds_vector_frame_source.THREDDSVectorFrameSource
+                    self._vfs = cls(**self._vfs_args)
                 self._reset_timer()
-                return self._mch
+                return self._vfs
 
         def fset(self, value):
-            with self._mch_lock:
-                self._mch = value
-                return self.mch
+            with self._vfs_lock:
+                self._vfs = value
+                return self.vfs
 
         def fdel(self):
-            with self._mch_lock:
+            with self._vfs_lock:
                 self._forget()
         return locals()
-    mch = property(**mch())
+    vfs = property(**vfs())
 
 
-tc = THREDDS_CONNECTION(data_uri=vector_frame.DEFAULT_DATA_URI)
+tc = THREDDS_CONNECTION(data_uri=thredds_vector_frame_source.DEFAULT_DATA_URI)
 
 
 @app.route('/')
@@ -77,7 +78,7 @@ def index():
 
 @app.route('/data/thredds/step/<int:time_step>')
 def thredds_vector_frame(time_step):
-    vector = tc.mch.plot_vector_surface(time_step)
+    vector = tc.vfs.plot_vector_surface(time_step)
     vector['u'] = vector['u'].round(4).tolist()
     vector['v'] = vector['v'].round(4).tolist()
     return json.dumps(vector)
