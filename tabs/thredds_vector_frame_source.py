@@ -75,6 +75,10 @@ class THREDDSVectorFrameSource(object):
         idx, idy = np.where(maskv == 1.0)
 
         idv = np.arange(len(idx))
+        # FIXME: This is a problem when open a connection and load some data,
+        # then wait for a while and try to load some new data. This class gets
+        # reinstatiated and the shuffled indices don't match. The output data
+        # is thusly scrambled.
         np.random.shuffle(idv)
 
         Nvec = len(idx) / self.decimate_factor
