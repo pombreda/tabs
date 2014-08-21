@@ -1,6 +1,7 @@
 import json
 from threading import Timer, RLock
 
+import numpy as np
 from flask import Flask, redirect, url_for
 
 from tabs import thredds_vector_frame_source
@@ -71,6 +72,14 @@ class THREDDS_CONNECTION(object):
 tc = THREDDS_CONNECTION(data_uri=thredds_vector_frame_source.DEFAULT_DATA_URI)
 
 
+def jsonify_dict_of_array(obj):
+    obj = obj.copy()
+    for k in obj:
+        if isinstance(obj[k], np.ndarray):
+            obj[k] = obj[k].round(4).tolist()
+    return obj
+
+
 @app.route('/')
 def index():
     return redirect(url_for('static', filename='tabs.html'))
@@ -78,10 +87,9 @@ def index():
 
 @app.route('/data/thredds/step/<int:time_step>')
 def thredds_vector_frame(time_step):
-    vector = tc.vfs.plot_vector_surface(time_step)
-    vector['u'] = vector['u'].round(4).tolist()
-    vector['v'] = vector['v'].round(4).tolist()
-    return json.dumps(vector)
+    vs = tc.vfs.plot_vector_surface(time_step)
+    vs = jsonify_dict_of_array(vs)
+    return json.dumps(vs)
 
 
 @app.route('/data/prefetched/step/<time_step>')
