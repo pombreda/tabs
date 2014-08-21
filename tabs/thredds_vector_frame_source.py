@@ -94,7 +94,8 @@ def write_vector(vector, outfile):
         if isinstance(vector[k], np.ndarray):
             vector[k] = vector[k].round(4).tolist()
     with open(filename, 'w') as f:
-        json.dump(vector, f)
+        json.dump(vector, f, separators=(',', ': '), indent=4)
+        f.write('\n')
 
 
 # length of animation (number of frames)
