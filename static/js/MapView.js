@@ -95,7 +95,6 @@ MapView = (function($, L, Models, Config) {
         this.vfs.withGridLocations(function(points) {
             self.points = points;
             self.addVectorLayer(self.points);
-            self.showTimeStep(0);
         });
 
     };
