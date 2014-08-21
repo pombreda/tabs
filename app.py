@@ -70,7 +70,8 @@ class THREDDS_CONNECTION(object):
     vfs = property(**vfs())
 
 
-tc = THREDDS_CONNECTION(data_uri=thredds_vector_frame_source.DEFAULT_DATA_URI)
+tc = THREDDS_CONNECTION(data_uri=thredds_vector_frame_source.DEFAULT_DATA_URI,
+                        decimate_factor=60)
 
 
 def jsonify_dict_of_array(obj):
