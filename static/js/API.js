@@ -28,7 +28,7 @@ API = (function($) {
     // Private functions
 
     function urlForFrame(frame) {
-        url = frame > 0 ? '/data/prefetched/step/' : '/data/thredds/step/';
+        url = '/data/thredds/step/';
         return url + frame;
     }
 
