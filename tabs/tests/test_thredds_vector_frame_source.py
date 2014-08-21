@@ -10,7 +10,8 @@ import numpy as np
 from ..thredds_vector_frame_source import main
 
 
-TEST_FILES = [f.replace('ref_', '') for f in glob.glob('json_data/*.json')]
+TEST_FILES = sorted([f.replace('ref_', '')
+                     for f in glob.glob('json_data/ref_*.json')])
 
 np.random.seed(0xDEADBEEF)
 NFRAMES = len([f for f in TEST_FILES if 'step' in f])
@@ -23,10 +24,12 @@ def remove_old():
 
 
 def diff_file(f):
+    if not os.path.isfile(f):
+        return
     d, fname = os.path.split(f)
     f_ref = os.path.join(d, 'ref_' + fname)
     try:
-        subprocess.check_call(['diff', f_ref, f])
+        subprocess.check_output(['diff', '-u', f_ref, f])
     except:
         raise AssertionError("Files differ: {!r} {!r}".format(f, f_ref))
 
