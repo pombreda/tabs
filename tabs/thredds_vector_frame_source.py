@@ -15,9 +15,6 @@ from octant_lite import rot2d, shrink
 # Data File
 DEFAULT_DATA_URI = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesting6.nc'  # noqa
 
-# length of animation (number of frames)
-NFRAMES = 90
-
 
 class THREDDSVectorFrameSource(object):
 
@@ -99,7 +96,8 @@ def write_vector(vector, outfile):
         json.dump(vector, f)
 
 
-def main():
+# length of animation (number of frames)
+def main(NFRAMES=90):
     np.random.seed(0xDEADBEEF)
     vector_frame_source = THREDDSVectorFrameSource(DEFAULT_DATA_URI,
                                                    decimate_factor=60)

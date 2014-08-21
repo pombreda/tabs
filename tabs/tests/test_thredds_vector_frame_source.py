@@ -7,13 +7,13 @@ import subprocess
 
 import numpy as np
 
-import vector_frame
+from ..thredds_vector_frame_source import main
 
 
 TEST_FILES = [f.replace('ref_', '') for f in glob.glob('json_data/*.json')]
 
 np.random.seed(0xDEADBEEF)
-vector_frame.NFRAMES = len([f for f in TEST_FILES if 'step' in f])
+NFRAMES = len([f for f in TEST_FILES if 'step' in f])
 
 
 def remove_old():
@@ -33,7 +33,7 @@ def diff_file(f):
 
 def test_files():
     try:
-        vector_frame.main()
+        main(NFRAMES)
         for f in TEST_FILES:
             yield diff_file, f
     finally:
