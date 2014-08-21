@@ -60,7 +60,8 @@ class THREDDS_CONNECTION(object):
         def fset(self, value):
             with self._vfs_lock:
                 self._vfs = value
-                return self.vfs
+                self._reset_timer()
+                return self._vfs
 
         def fdel(self):
             with self._vfs_lock:
