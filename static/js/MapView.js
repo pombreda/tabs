@@ -157,8 +157,8 @@ MapView = (function($, L, Models, Config) {
         var self = this;
         if (this.isRunning) {
             var t = Date.now();
+            self.currentFrame = (self.currentFrame + 1) % self.nFrames;
             this.showTimeStep(this.currentFrame, function() {
-                self.currentFrame = (self.currentFrame + 1) % self.nFrames;
                 var waitTime = Math.max(0, self.delay - (Date.now() - t));
 
                 // XXX: Remove eventually
