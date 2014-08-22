@@ -1,42 +1,44 @@
-MapView = (function($, L, Models) {
+MapView = (function($, L, Models, Config) {
 
     var defaults = {
 
         // speed of animation (larger is slower)
-        delay: 90,
+        delay: Config.delay,
 
         // global layer to update vector multiPolylines
         vectorGroup: L.layerGroup([]),
 
-        isRunning: false,
+
+        isRunning: Config.isRunning,
 
         // The locations of the data points
         points: [],
 
+
         // number of time steps to use
-        nFrames: 90,
+        nFrames: Config.nFrames,
 
         // initial zoom level
-        minZoom: 7,
-        defaultZoom: 7,
-        maxZoom: 11,
+        minZoom: Config.minZoom,
+        defaultZoom: Config.defaultZoom,
+        maxZoom: Config.maxZoom,
 
         // Position of the barbs on the arrows ('head', 'center', 'tail')
-        barbLocation: 'head',
+        barbLocation: Config.barbLocation,
 
         // Fraction of vector length to make arrow strokes
-        arrowHeadSize: 0.15,
+        arrowHeadSize: Config.arrowHeadSize,
 
         // Degrees!
-        arrowHeadAngle: 60,
+        arrowHeadAngle: Config.arrowHeadAngle,
 
-        tileLayerURL: 'https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3nibphe/{z}/{x}/{y}.png',
+        tileLayerURL: Config.tileLayerURL,
 
         attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
 
-        domainURL: '/data/prefetched/domain',
+        domainURL: Config.domainURL,
 
-        gridURL: '/data/prefetched/grid'
+
 
     };
 
@@ -86,14 +88,12 @@ MapView = (function($, L, Models) {
         this.vfs = Models.vectorFrameSource({
             barbLocation: this.barbLocation,
             arrowHeadSize: this.arrowHeadSize,
-            arrowHeadAngle: this.arrowHeadAngle,
-            gridURL: this.gridURL});
+            arrowHeadAngle: this.arrowHeadAngle});
 
         // put the initial velocity vectors on the map
         this.vfs.withGridLocations(function(points) {
             self.points = points;
             self.addVectorLayer(self.points);
-            self.showTimeStep(0);
         });
 
     };
@@ -155,8 +155,8 @@ MapView = (function($, L, Models) {
         var self = this;
         if (this.isRunning) {
             var t = Date.now();
+            self.currentFrame = (self.currentFrame + 1) % self.nFrames;
             this.showTimeStep(this.currentFrame, function() {
-                self.currentFrame = (self.currentFrame + 1) % self.nFrames;
                 var waitTime = Math.max(0, self.delay - (Date.now() - t));
 
                 // XXX: Remove eventually
@@ -206,4 +206,4 @@ MapView = (function($, L, Models) {
     }
 
 
-}(jQuery, L, Models));
+}(jQuery, L, Models, Config));

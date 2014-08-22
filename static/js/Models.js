@@ -1,11 +1,11 @@
 Models = {}
-Models.vectorFrameSource = (function($, Trig) {
+Models.vectorFrameSource = (function($, Trig, Config) {
 
     var defaults = {
-        barbLocation: 'head',
-        barbDescriptions: {tail: 0, center: 0.5, head: 1.0},
-        arrowHeadSize: 0.15,
-        arrowHeadAngle: 60 * Math.PI / 180
+        barbLocation: Config.barbLocation,
+        barbDescriptions: Config.barbDescriptions,
+        arrowHeadSize: Config.arrowHeadSize,
+        arrowHeadAngle: Config.arrowHeadAngle
     };
 
     function VectorFrameSource(config) {
@@ -46,7 +46,7 @@ Models.vectorFrameSource = (function($, Trig) {
 
     VectorFrameSource.prototype.withGridLocations = function withGridLocations(
             callback) {
-        API.withJSON(this.gridURL, function(data) {
+        API.withGridLocationsJSON(function(data) {
             var nPoints = data['lat'].length;
             var points = new Array(nPoints);
             for (var i = 0; i < nPoints; i++) {
@@ -113,4 +113,4 @@ Models.vectorFrameSource = (function($, Trig) {
         }
     }
 
-}(jQuery, Trig));
+}(jQuery, Trig, Config));

@@ -1,4 +1,4 @@
-API = (function($) {
+API = (function(Config, $) {
 
     var _json = {};
 
@@ -18,18 +18,24 @@ API = (function($) {
     }
 
 
+    function withGridLocationsJSON(callback) {
+        withJSON(Config.gridLocationsURL, callback);
+    }
+
 
     return {
         withJSON: withJSON,
-        withVectorFrameJSON: withVectorFrameJSON
+        withVectorFrameJSON: withVectorFrameJSON,
+        withGridLocationsJSON: withGridLocationsJSON
     };
 
 
     // Private functions
 
     function urlForFrame(frame) {
-        return '/data/prefetched/step/' + frame;
+        url = Config.vectorFrameURL;
+        return url + frame;
     }
 
 
-}(jQuery));
+}(Config, jQuery));
