@@ -1,10 +1,11 @@
 # class for creating animations.
 
-import matplotlib
-matplotlib.use('Agg')
-
 import os
 import json
+from functools import partial
+
+import matplotlib
+matplotlib.use('Agg')
 
 import numpy as np
 from mpl_toolkits.basemap import Basemap
