@@ -16,7 +16,6 @@ MapView = (function($, L, Models, Config) {
 
 
         // number of time steps to use
-        // nFrames: Config.nFrames,
         nFrames: Config.nFrames,
 
         // initial zoom level
