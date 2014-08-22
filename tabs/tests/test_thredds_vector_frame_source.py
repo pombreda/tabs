@@ -1,43 +1,45 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+from contextlib import contextmanager
 import glob
+import os
+import shutil
 import subprocess
+import tempfile
 
 import numpy as np
 
 from ..thredds_vector_frame_source import main
 
 
-TEST_FILES = sorted([f.replace('ref_', '')
-                     for f in glob.glob('json_data/ref_*.json')])
-
 np.random.seed(0xDEADBEEF)
+
+file_glob = os.path.join(os.path.dirname(__file__),
+                         'reference_data/ref_*.json')
+TEST_FILES = glob.glob(file_glob)
 NFRAMES = len([f for f in TEST_FILES if 'step' in f])
+NFRAMES = 6
 
 
-def remove_old():
-    for f in TEST_FILES:
-        if os.path.isfile(f):
-            os.unlink(f)
-
-
-def diff_file(f):
-    if not os.path.isfile(f):
-        return
-    d, fname = os.path.split(f)
-    f_ref = os.path.join(d, 'ref_' + fname)
+def diff_file(f_ref, f):
     try:
-        subprocess.check_output(['diff', '-u', f_ref, f])
+        subprocess.check_call(['diff', '-y', f_ref, f])
     except:
-        raise AssertionError("Files differ: {!r} {!r}".format(f, f_ref))
+        raise AssertionError("Files differ: {!r} {!r}".format(f_ref, f))
 
 
 def test_files():
-    try:
-        main(NFRAMES)
-        for f in TEST_FILES:
-            yield diff_file, f
-    finally:
-        remove_old()
+    with tempdir() as output_dir:
+        main(NFRAMES=NFRAMES, output_dir=output_dir)
+        for f_ref in TEST_FILES:
+            f = os.path.basename(f_ref).replace('ref_', '')
+            f = os.path.join(output_dir, f)
+            yield diff_file, f_ref, f
+
+
+@contextmanager
+def tempdir():
+    output_dir = tempfile.mkdtemp()
+    yield output_dir
+    shutil.rmtree(output_dir)

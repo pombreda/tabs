@@ -114,31 +114,35 @@ class THREDDSVectorFrameSource(object):
 
 def write_vector(vector, outfile):
     """ Save vector data for a timestep as JSON """
-    out_dir = os.path.join(os.path.dirname(__file__), 'json_data')
+    out_dir = os.path.dirname(outfile)
     if not os.path.exists(out_dir):
-        os.mkdir(out_dir)
-    filename = os.path.join(out_dir, outfile)
+        os.makedirs(out_dir)
+
     vector = vector.copy()
     for k in vector:
         if isinstance(vector[k], np.ndarray):
             vector[k] = vector[k].round(4).tolist()
-    with open(filename, 'w') as f:
+    with open(outfile, 'w') as f:
         json.dump(vector, f, separators=(',', ': '), indent=4)
         f.write('\n')
 
+    print(" ... wrote {}".format(outfile))
+
 
 # length of animation (number of frames)
-def main(NFRAMES=90):
+def main(NFRAMES=90, output_dir=None):
     np.random.seed(0xDEADBEEF)
+    if output_dir is None:
+        output_dir = os.path.join(os.path.dirname(__file__),
+                                  'static/data/json')
+    filename = partial(os.path.join, output_dir)
     vector_frame_source = THREDDSVectorFrameSource(DEFAULT_DATA_URI,
                                                    decimate_factor=60)
-    write_vector(vector_frame_source.grid, 'grd_locations.json')
+    write_vector(vector_frame_source.grid, filename('grd_locations.json'))
 
     for tidx in range(NFRAMES):
-        print(tidx)
         vector = vector_frame_source.plot_vector_surface(tidx)
-        write_vector(vector, 'step{}.json'.format(tidx))
-        print(' ... wrote frame {}'.format(tidx))
+        write_vector(vector, filename('step{}.json'.format(tidx)))
 
 
 if __name__ == '__main__':
