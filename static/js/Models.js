@@ -71,10 +71,10 @@ Models.velocityFrameSource = (function($, Trig, Config) {
             API.withVelocityFrameJSON(frame, function(obj) {
                 var vector_frame = self._getDataSnapshot(points, scale, obj);
                 self._velocity_frames[scale][frame] = vector_frame;
-                callback(vector_frame);
+                callback && callback(vector_frame);
             });
         } else {
-            callback(self._velocity_frames[scale][frame]);
+            callback && callback(self._velocity_frames[scale][frame]);
         }
     };
 
@@ -139,11 +139,11 @@ Models.saltFrameSource = (function($, Config) {
         var self = this;
         if (this._salt_frames[frame] === undefined) {
             API.withSaltFrameJSON(frame, function(obj) {
-                self._salt_frames[frame] = salt_frame;
-                callback(salt_frame);
+                self._salt_frames[frame] = obj;
+                callback && callback(obj);
             });
         } else {
-            callback(self._salt_frames[frame]);
+            callback && callback(self._salt_frames[frame]);
         }
     };
 
