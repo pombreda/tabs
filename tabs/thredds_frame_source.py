@@ -105,10 +105,11 @@ class THREDDSFrameSource(object):
 
     def salt_frame(self, frame_number):
         salt = self.nc.variables['salt'][frame_number, -1, :, :]
-        levels = np.logspace(
-            np.log(0.95 * salt.min()),
-            np.log(1.05 * salt.max()),
-            10, True, np.exp(1))
+        salt_range = (salt.max() - salt.min()) * 0.05
+        levels = np.linspace(
+            (salt.min() - salt_range),
+            (salt.max() + salt_range),
+            10)
         contours = plt.contourf(self.salt_lon, self.salt_lat, salt, levels)
 
         multipolygons = []
