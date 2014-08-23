@@ -2,7 +2,7 @@ import json
 from threading import Timer, RLock
 
 import numpy as np
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, request, url_for
 
 from tabs import thredds_frame_source
 
@@ -14,10 +14,10 @@ RANDOM_STATE = np.random.get_state()
 # We should probably maintain a connection for at least a short while
 class THREDDS_CONNECTION(object):
 
-    def __init__(self, timeout=60, **fs_args):
+    def __init__(self, timeout=300.0, **fs_args):
         """ Create an expiring connection to the THREDDS server.
 
-        The connection will drop after 60 seconds of non-use. Any subsequent
+        The connection will drop after 5 minutes of non-use. Any subsequent
         attempt to use the connection will initiate a new one. Access to the
         connection is RLock'd to ensure only one connection is alive at a time.
 
@@ -134,7 +134,8 @@ def static_velocity_frame(time_step):
 
 @app.route('/data/thredds/salt/step/<int:time_step>')
 def thredds_salt_frame(time_step):
-    salt = tc.fs.salt_frame(time_step)
+    num_levels = request.args.get('numSaltLevels', 10)
+    salt = tc.fs.salt_frame(time_step, num_levels=num_levels)
     return json.dumps(salt)
 
 if __name__ == '__main__':
