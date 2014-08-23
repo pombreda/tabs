@@ -7,9 +7,11 @@ from functools import partial
 import matplotlib
 matplotlib.use('Agg')
 
+import matplotlib.pyplot as plt
+import netCDF4 as netCDF
 import numpy as np
 from mpl_toolkits.basemap import Basemap
-import netCDF4 as netCDF
+from shapely.geometry import Polygon, MultiPolygon
 
 from octant_lite import rot2d, shrink
 
@@ -49,6 +51,7 @@ class THREDDSFrameSource(object):
                                area_thresh=0.)
 
         self._configure_velocity_grid()
+        self._configure_salt_grid()
 
     def _configure_velocity_grid(self):
 
@@ -78,6 +81,17 @@ class THREDDSFrameSource(object):
             'lon': lon[self.velocity_idx, self.velocity_idy],
             'lat': lat[self.velocity_idx, self.velocity_idy]}
 
+    def _configure_salt_grid(self):
+        self.salt_lon = self.nc.variables['lon_rho'][:]
+        self.salt_lat = self.nc.variables['lat_rho'][:]
+
+        # FIXME: What about this mask thing?
+        # self.salt_mask = self.nc.variables['mask_rho'][:]
+
+        # # We don't need to decimate or shuffle this because we're going to be
+        # # shipping out derived contour lines
+        # self.salt_idx, self.salt_idy = mask.nonzero()
+
     def velocity_frame(self, frame_number):
         u = self.nc.variables['u'][frame_number, -1, :, :]
         v = self.nc.variables['v'][frame_number, -1, :, :]
@@ -88,6 +102,23 @@ class THREDDSFrameSource(object):
                   'u': u[self.velocity_idx, self.velocity_idy],
                   'v': v[self.velocity_idx, self.velocity_idy]}
         return vector
+
+    def salt_frame(self, frame_number):
+        salt = self.nc.variables['salt'][frame_number, -1, :, :]
+        contours = plt.contourf(self.salt_lon, self.salt_lat, salt)
+
+        multipolygons = []
+        for collection in contours.collections:
+            for path in collection.get_paths():
+                polys = []
+                for coords in path.to_polygons():
+                    polys.append(Polygon(coords))
+        multipolygons.append(MultiPolygon(polys))
+
+        # contour_intervals = contours.cvalues
+        features = [mp.__geo_interface__ for mp in multipolygons]
+        geojson = dict(type='FeatureCollection', features=features)
+        return geojson
 
     def __del__(self):
         """docstring for __del__"""
