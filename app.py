@@ -81,8 +81,8 @@ tc = THREDDS_CONNECTION(data_uri=thredds_frame_source.DEFAULT_DATA_URI,
 def jsonify_dict_of_array(obj):
     obj = obj.copy()
     for k in obj:
-        if isinstance(obj[k], np.ndarray):
-            obj[k] = obj[k].round(4).tolist()
+        if isinstance(obj[k], (np.ndarray, list)):
+            obj[k] = np.asarray(obj[k]).round(4).tolist()
     return obj
 
 
