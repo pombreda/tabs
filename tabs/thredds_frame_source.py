@@ -104,7 +104,6 @@ class THREDDSFrameSource(object):
         return vector
 
     def salt_frame(self, frame_number, num_levels=10):
-        print(frame_number, num_levels)
         salt = self.nc.variables['salt'][frame_number, 0, :, :]
         salt_range = (salt.max() - salt.min()) * 0.05
         levels = np.logspace(
@@ -131,7 +130,7 @@ class THREDDSFrameSource(object):
                             for coords in path.to_polygons()]
             mls = MultiLineString(line_strings)
             feat = {'type': 'Feature',
-                    'properties': {'color': collection.get_color(),
+                    'properties': {'color': collection.get_color()[0].tolist(),
                                    'cvalue': cvalue},
                     'geometry': mls.__geo_interface__}
 
