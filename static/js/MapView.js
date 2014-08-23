@@ -68,6 +68,10 @@ MapView = (function($, L, Models, Config) {
             this.velocityView = VelocityView.velocityView(config).addTo(this);
         }
 
+        if (this.display.salinity) {
+            this.saltView = SaltView.saltView(config).addTo(this);
+        }
+
         // Register hotkeys
         window.onkeypress = function startStop(oKeyEvent) {
             if (oKeyEvent.charCode === 32) {
@@ -152,6 +156,16 @@ MapView = (function($, L, Models, Config) {
                     self.tabsControl && self.tabsControl.updateInfo(
                         {frame: self.currentFrame, date: data.date});
                         callback(data);
+                }
+            );
+        }
+
+        if (this.display.salinity) {
+            this.saltView && this.saltView.redraw(
+                function salt_call(data) {
+                    self.tabsControl && self.tabsControl.updateInfo(
+                        {frame: self.currentFrame, date: data.date});
+                        callback && callback(data);
                 }
             );
         }

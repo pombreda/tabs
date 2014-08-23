@@ -117,8 +117,10 @@ class THREDDSFrameSource(object):
 
         # contour_intervals = contours.cvalues
         features = [mp.__geo_interface__ for mp in multipolygons]
-        geojson = dict(type='FeatureCollection', features=features)
-        return geojson
+        geojson = {'type': 'FeatureCollection', 'features': features}
+        frame = {'date': self.dates[frame_number].isoformat(),
+                 'contours': geojson}
+        return frame
 
     def __del__(self):
         """docstring for __del__"""
