@@ -19,7 +19,7 @@ API = (function(Config, $) {
 
 
     function withGridLocationsJSON(callback) {
-        withJSON(Config.gridLocationsURL, callback);
+        withJSON(Config.velocityGridLocationsURL, callback);
     }
 
 
@@ -33,7 +33,7 @@ API = (function(Config, $) {
     // Private functions
 
     function urlForFrame(frame) {
-        url = Config.vectorFrameURL;
+        url = Config.velocityFrameURL;
         return url + frame;
     }
 

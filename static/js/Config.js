@@ -1,8 +1,8 @@
 
 var Config = {
     // API
-    gridLocationsURL: '/data/thredds/grid',
-    vectorFrameURL: '/data/thredds/step/',
+    velocityGridLocationsURL: '/data/thredds/velocity/grid',
+    velocityFrameURL: '/data/thredds/velocity/step/',
     domainURL: '/data/prefetched/domain',
     tileLayerURL: 'https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3nibphe/{z}/{x}/{y}.png',
 

@@ -20,7 +20,7 @@ CACHE_DATA_URI = os.path.join(os.path.dirname(__file__),
 DEFAULT_DATA_URI = CACHE_DATA_URI
 
 
-class THREDDSVectorFrameSource(object):
+class THREDDSFrameSource(object):
 
     def __init__(self, data_uri=DEFAULT_DATA_URI, decimate_factor=1,
                  grdfile=None):
@@ -48,12 +48,17 @@ class THREDDSVectorFrameSource(object):
                                resolution='i',
                                area_thresh=0.)
 
+        self._configure_velocity_grid()
+
+    def _configure_velocity_grid(self):
+
         maskv = self.ncg.variables['mask_psi'][:]
         lon = self.ncg.variables['lon_psi'][:]
         lat = self.ncg.variables['lat_psi'][:]
 
         # What is happening here? Why is this necessary?
-        self.anglev = shrink(self.ncg.variables['angle'][:], lon.shape)
+        self.velocity_angle = shrink(self.ncg.variables['angle'][:],
+                                          lon.shape)
 
         idx, idy = np.where(maskv == 1.0)
 
@@ -66,23 +71,23 @@ class THREDDSVectorFrameSource(object):
 
         Nvec = len(idx) / self.decimate_factor
         idv = idv[:Nvec]
-        self.idx = idx[idv]
-        self.idy = idy[idv]
+        self.velocity_idx = idx[idv]
+        self.velocity_idy = idy[idv]
 
         # save the grid locations as JSON file
-        self.grid = {'lon': lon[self.idx, self.idy].tolist(),
-                     'lat': lat[self.idx, self.idy].tolist()}
+        self.velocity_grid = {
+            'lon': lon[self.velocity_idx, self.velocity_idy],
+            'lat': lat[self.velocity_idx, self.velocity_idy]}
 
-    def plot_vector_surface(self, frame_number):
-        # Why can't we fancy slice here? [..., self.idx, self.idy]
+    def velocity_frame(self, frame_number):
         u = self.nc.variables['u'][frame_number, -1, :, :]
         v = self.nc.variables['v'][frame_number, -1, :, :]
         u, v = shrink(u, v)
-        u, v = rot2d(u, v, self.anglev)
+        u, v = rot2d(u, v, self.velocity_angle)
 
         vector = {'date': self.dates[frame_number].isoformat(),
-                  'u': u[self.idx, self.idy],
-                  'v': v[self.idx, self.idy]}
+                  'u': u[self.velocity_idx, self.velocity_idy],
+                  'v': v[self.velocity_idx, self.velocity_idy]}
         return vector
 
     def __del__(self):
@@ -115,12 +120,11 @@ def main(NFRAMES=90, output_dir=None):
         output_dir = os.path.join(os.path.dirname(__file__),
                                   'static/data/json')
     filename = partial(os.path.join, output_dir)
-    vector_frame_source = THREDDSVectorFrameSource(DEFAULT_DATA_URI,
-                                                   decimate_factor=60)
-    write_vector(vector_frame_source.grid, filename('grd_locations.json'))
+    frame_source = THREDDSFrameSource(DEFAULT_DATA_URI, decimate_factor=60)
+    write_vector(frame_source.velocity_grid, filename('grd_locations.json'))
 
     for tidx in range(NFRAMES):
-        vector = vector_frame_source.plot_vector_surface(tidx)
+        vector = frame_source.velocity_frame(tidx)
         write_vector(vector, filename('step{}.json'.format(tidx)))
 
 

@@ -4,7 +4,7 @@ from threading import Timer, RLock
 import numpy as np
 from flask import Flask, redirect, url_for
 
-from tabs import thredds_vector_frame_source
+from tabs import thredds_frame_source
 
 app = Flask(__name__)
 
@@ -56,7 +56,7 @@ class THREDDS_CONNECTION(object):
                     app.logger.info("Opening new THREDDS connection")
                     # Ensure that we get the same ordering of grid points
                     np.random.set_state(RANDOM_STATE)
-                    cls = thredds_vector_frame_source.THREDDSVectorFrameSource
+                    cls = thredds_frame_source.THREDDSFrameSource
                     self._vfs = cls(**self._vfs_args)
                 self._reset_timer()
                 return self._vfs
@@ -74,7 +74,7 @@ class THREDDS_CONNECTION(object):
     vfs = property(**vfs())
 
 
-tc = THREDDS_CONNECTION(data_uri=thredds_vector_frame_source.DEFAULT_DATA_URI,
+tc = THREDDS_CONNECTION(data_uri=thredds_frame_source.DEFAULT_DATA_URI,
                         decimate_factor=60)
 
 
@@ -91,37 +91,44 @@ def index():
     return redirect(url_for('static', filename='tabs.html'))
 
 
-@app.route('/data/thredds/grid')
-def thredds_grid():
-    return json.dumps(jsonify_dict_of_array(tc.vfs.grid))
-
-
-@app.route('/data/thredds/step/<int:time_step>')
-def thredds_vector_frame(time_step):
-    vs = tc.vfs.plot_vector_surface(time_step)
-    vs = jsonify_dict_of_array(vs)
-    return json.dumps(vs)
-
-
-@app.route('/data/prefetched/step/<time_step>')
-def static_vector_frame(time_step):
-    """ Return static JSON data for a time step """
-    filename = 'static/data/json/step{}.json'.format(time_step)
-    return redirect(url_for('static', filename=filename))
-
-
-@app.route('/data/prefetched/grid')
-def static_grid():
-    """ Return the grid locations """
-    filename = 'static/data/json/grd_locations.json'
-    return redirect(url_for('static', filename=filename))
-
+# An outline of the region interest
 
 @app.route('/data/prefetched/domain')
 def domain():
     """ Return the domain outline """
-    filename = 'static/data/json/domain.json'
+    filename = 'data/json/domain.json'
     return redirect(url_for('static', filename=filename))
+
+
+# Retrieve the grid
+
+@app.route('/data/thredds/velocity/grid')
+def thredds_grid():
+    return json.dumps(jsonify_dict_of_array(tc.vfs.velocity_grid))
+
+
+@app.route('/data/prefetched/velocity/grid')
+def static_grid():
+    """ Return the grid locations """
+    filename = 'data/json/grd_locations.json'
+    return redirect(url_for('static', filename=filename))
+
+
+# Retrieve velocity frames
+
+@app.route('/data/thredds/velocity/step/<int:time_step>')
+def thredds_velocity_frame(time_step):
+    vs = tc.vfs.velocity_frame(time_step)
+    vs = jsonify_dict_of_array(vs)
+    return json.dumps(vs)
+
+
+@app.route('/data/prefetched/velocity/step/<int:time_step>')
+def static_velocity_frame(time_step):
+    """ Return static JSON data for a time step """
+    filename = 'data/json/step{}.json'.format(time_step)
+    return redirect(url_for('static', filename=filename))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
