@@ -130,5 +130,12 @@ def static_velocity_frame(time_step):
     return redirect(url_for('static', filename=filename))
 
 
+# Retrieve salinity contours
+
+@app.route('/data/thredds/salt/step/<int:time_step>')
+def thredds_salt_frame(time_step):
+    salt = tc.fs.salt_frame(time_step)
+    return json.dumps(salt)
+
 if __name__ == '__main__':
     app.run(debug=True)

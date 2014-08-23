@@ -23,7 +23,7 @@ API = (function(Config, $) {
     }
 
     function withSaltFrameJSON(frame, callback) {
-        withJSON(urlForSaltFrame(frame, callback));
+        withJSON(urlForSaltFrame(frame), callback);
     }
 
     return {

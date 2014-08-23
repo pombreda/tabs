@@ -4,6 +4,7 @@ var Config = {
     // API
     velocityGridLocationsURL: '/data/thredds/velocity/grid',
     velocityFrameURL: '/data/thredds/velocity/step/',
+    saltFrameURL: '/data/thredds/salt/step/',
     domainURL: '/data/prefetched/domain',
     tileLayerURL: 'https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3nibphe/{z}/{x}/{y}.png',
 
