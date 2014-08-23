@@ -2,7 +2,7 @@ var VelocityView = (function($, L, Models, Config) {
 
     var defaults = {
 
-        // global layer to update vector multiPolylines
+        // layer containing vector polylines
         vectorGroup: L.layerGroup([]),
 
         // The locations of the data points
@@ -44,7 +44,7 @@ var VelocityView = (function($, L, Models, Config) {
 
         this.mapView = mapView;
 
-        var vectorStyle = {
+        var style = {
             color: this.color,
             weight: this.weight
         };
@@ -58,7 +58,7 @@ var VelocityView = (function($, L, Models, Config) {
                     function(data) {
                 var vectors = data.vectors;
                 for (var i = 0; i < vectors.length; i++) {
-                    var line = L.polyline(vectors[i], vectorStyle);
+                    var line = L.polyline(vectors[i], style);
                     self.vectorGroup.addLayer(line);
                 }
                 self.vectorGroup.addTo(mapView.map);
@@ -71,6 +71,7 @@ var VelocityView = (function($, L, Models, Config) {
 
     VelocityView.prototype.redraw = function redraw(callback) {
         var self = this;
+
         // If we haven't been added to a map we don't bother redrawing
         if (!self.mapView) {
             return this;
