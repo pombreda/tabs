@@ -13,26 +13,26 @@ API = (function(Config, $) {
         }
     }
 
-    function withVectorFrameJSON(frame, callback) {
-        withJSON(urlForFrame(frame), callback);
+    function withVelocityFrameJSON(frame, callback) {
+        withJSON(urlForVelocityFrame(frame), callback);
     }
 
 
-    function withGridLocationsJSON(callback) {
+    function withVelocityGridLocationsJSON(callback) {
         withJSON(Config.velocityGridLocationsURL, callback);
     }
 
 
     return {
         withJSON: withJSON,
-        withVectorFrameJSON: withVectorFrameJSON,
-        withGridLocationsJSON: withGridLocationsJSON
+        withVelocityFrameJSON: withVelocityFrameJSON,
+        withVelocityGridLocationsJSON: withVelocityGridLocationsJSON,
     };
 
 
     // Private functions
 
-    function urlForFrame(frame) {
+    function urlForVelocityFrame(frame) {
         url = Config.velocityFrameURL;
         return url + frame;
     }

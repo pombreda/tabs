@@ -57,8 +57,7 @@ class THREDDSFrameSource(object):
         lat = self.ncg.variables['lat_psi'][:]
 
         # What is happening here? Why is this necessary?
-        self.velocity_angle = shrink(self.ncg.variables['angle'][:],
-                                          lon.shape)
+        self.velocity_angle = shrink(self.ncg.variables['angle'][:], lon.shape)
 
         idx, idy = np.where(maskv == 1.0)
 

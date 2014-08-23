@@ -24,7 +24,6 @@ var Config = {
     isRunning: true,
 
     // number of time steps to use
-    // nFrames: 90,
-    nFrames: 6
+    nFrames: 90,
 
 };
