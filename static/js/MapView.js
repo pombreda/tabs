@@ -72,6 +72,8 @@ MapView = (function($, L, Models, Config) {
             this.saltView = SaltView.saltView(config).addTo(this);
         }
 
+        self.redraw();
+
         // Register hotkeys
         window.onkeypress = function startStop(oKeyEvent) {
             if (oKeyEvent.charCode === 32) {
@@ -164,7 +166,8 @@ MapView = (function($, L, Models, Config) {
             this.saltView && this.saltView.redraw(
                 function salt_call(data) {
                     self.tabsControl && self.tabsControl.updateInfo(
-                        {frame: self.currentFrame, date: data.date});
+                        {frame: self.currentFrame, date: data.date,
+                         numSaltLevels: self.saltView.numSaltLevels});
                         callback && callback(data);
                 }
             );

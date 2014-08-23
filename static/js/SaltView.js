@@ -5,6 +5,9 @@ var SaltView = (function($, L, Models, Config) {
         // layer containing salt contour polylines
         saltGroup: L.geoJson(),
 
+        // The number of contour levels to show
+        numSaltLevels: 10,
+
         // Contour artist parameters
         color: 'black',
         weight: 1
