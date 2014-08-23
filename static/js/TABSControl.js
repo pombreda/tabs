@@ -40,10 +40,12 @@ var TABSControl = (function() {
 
         updateInfo: function(info) {
             if (info) {
-                if (info.hasOwnProperty('frame')) {
+
+                if (info.frame !== undefined) {
                     this.frame = info.frame;
                 }
-                if (info.hasOwnProperty('date')) {
+
+                if (info.date !== undefined) {
                     if (info.date[info.date.length - 1] != 'Z') {
                         info.date += 'Z';
                     }

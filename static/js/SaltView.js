@@ -16,9 +16,11 @@ var SaltView = (function($, L, Models, Config) {
 
     var SaltView = function SaltView(config) {
 
-        $.extend(this, defaults, config);
+        var self = this;
 
-        this.sfs = Models.saltFrameSource();
+        $.extend(self, defaults, config);
+
+        self.sfs = Models.saltFrameSource();
 
     };
 
