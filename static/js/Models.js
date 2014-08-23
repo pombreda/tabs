@@ -120,3 +120,36 @@ Models.velocityFrameSource = (function($, Trig, Config) {
     }
 
 }(jQuery, Trig, Config));
+
+
+Models.saltFrameSource = (function($, Config) {
+
+    var defaults = {
+    };
+
+    function SaltFrameSource(config) {
+        $.extend(this, defaults, config);
+        // Salt frames are in lat,lon and are invariant w.r.t. mapscale
+        this._salt_frames = [];
+    };
+
+    SFS_proto = SaltFrameSource.prototype;
+
+    SFS_proto.withSaltFrame = function withSaltFrame(frame, callback) {
+        var self = this;
+        if (this._salt_frames[frame] === undefined) {
+            API.withSaltFrameJSON(frame, function(obj) {
+                self._salt_frames[frame] = salt_frame;
+                callback(salt_frame);
+            });
+        } else {
+            callback(self._salt_frames[frame]);
+        }
+    };
+
+    return function saltframeSource(config) {
+        return new SaltFrameSource(config);
+    };
+
+
+}(jQuery, Config));

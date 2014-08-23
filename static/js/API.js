@@ -22,11 +22,15 @@ API = (function(Config, $) {
         withJSON(Config.velocityGridLocationsURL, callback);
     }
 
+    function withSaltFrameJSON(frame, callback) {
+        withJSON(urlForSaltFrame(frame, callback));
+    }
 
     return {
         withJSON: withJSON,
         withVelocityFrameJSON: withVelocityFrameJSON,
         withVelocityGridLocationsJSON: withVelocityGridLocationsJSON,
+        withSaltFrameJSON: withSaltFrameJSON
     };
 
 
@@ -37,5 +41,9 @@ API = (function(Config, $) {
         return url + frame;
     }
 
+    function urlForSaltFrame(frame) {
+        url = Config.saltFrameURL;
+        return url + frame;
+    }
 
 }(Config, jQuery));
