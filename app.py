@@ -14,7 +14,7 @@ RANDOM_STATE = np.random.get_state()
 # We should probably maintain a connection for at least a short while
 class THREDDS_CONNECTION(object):
 
-    def __init__(self, timeout=60, **vfs_args):
+    def __init__(self, timeout=60, **fs_args):
         """ Create an expiring connection to the THREDDS server.
 
         The connection will drop after 60 seconds of non-use. Any subsequent
@@ -27,9 +27,9 @@ class THREDDS_CONNECTION(object):
 
         Remaining keyword args are passed to the connection's constructor.
         """
-        self._vfs = None
-        self._vfs_lock = RLock()
-        self._vfs_args = vfs_args
+        self._fs = None
+        self._fs_lock = RLock()
+        self._fs_args = fs_args
         self._timer = None
         self.timeout = float(timeout)
 
@@ -38,7 +38,7 @@ class THREDDS_CONNECTION(object):
         if self._timer:
             self._timer.cancel()
             self._timer = None
-        self._vfs = None
+        self._fs = None
 
     def _reset_timer(self):
         app.logger.info("Resetting THREDDS connection timer")
@@ -47,31 +47,31 @@ class THREDDS_CONNECTION(object):
         self._timer = Timer(self.timeout, self._forget)
         self._timer.start()
 
-    def vfs():
-        doc = "The vfs property."
+    def fs():
+        doc = "The fs property."
 
         def fget(self):
-            with self._vfs_lock:
-                if not self._vfs:
+            with self._fs_lock:
+                if not self._fs:
                     app.logger.info("Opening new THREDDS connection")
                     # Ensure that we get the same ordering of grid points
                     np.random.set_state(RANDOM_STATE)
                     cls = thredds_frame_source.THREDDSFrameSource
-                    self._vfs = cls(**self._vfs_args)
+                    self._fs = cls(**self._fs_args)
                 self._reset_timer()
-                return self._vfs
+                return self._fs
 
         def fset(self, value):
-            with self._vfs_lock:
-                self._vfs = value
+            with self._fs_lock:
+                self._fs = value
                 self._reset_timer()
-                return self._vfs
+                return self._fs
 
         def fdel(self):
-            with self._vfs_lock:
+            with self._fs_lock:
                 self._forget()
         return locals()
-    vfs = property(**vfs())
+    fs = property(**fs())
 
 
 tc = THREDDS_CONNECTION(data_uri=thredds_frame_source.DEFAULT_DATA_URI,
@@ -104,7 +104,7 @@ def domain():
 
 @app.route('/data/thredds/velocity/grid')
 def thredds_grid():
-    return json.dumps(jsonify_dict_of_array(tc.vfs.velocity_grid))
+    return json.dumps(jsonify_dict_of_array(tc.fs.velocity_grid))
 
 
 @app.route('/data/prefetched/velocity/grid')
@@ -118,7 +118,7 @@ def static_grid():
 
 @app.route('/data/thredds/velocity/step/<int:time_step>')
 def thredds_velocity_frame(time_step):
-    vs = tc.vfs.velocity_frame(time_step)
+    vs = tc.fs.velocity_frame(time_step)
     vs = jsonify_dict_of_array(vs)
     return json.dumps(vs)
 
