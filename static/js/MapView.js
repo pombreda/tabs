@@ -2,15 +2,18 @@ MapView = (function($, L, Models, Config) {
 
     var defaults = {
 
-        // speed of animation (larger is slower)
+        display: Config.display,
+
+        // Speed of animation (larger is slower)
         delay: Config.delay,
 
+        // Does the animation automatically start?
         isRunning: Config.isRunning,
 
-        // number of time steps to use
+        // Number of time steps to use
         nFrames: Config.nFrames,
 
-        // initial zoom level
+        // Initial zoom level
         minZoom: Config.minZoom,
         defaultZoom: Config.defaultZoom,
         maxZoom: Config.maxZoom,
@@ -19,6 +22,7 @@ MapView = (function($, L, Models, Config) {
 
         attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
 
+        // Outline of the region of interest
         domainURL: Config.domainURL
 
     };
@@ -60,7 +64,9 @@ MapView = (function($, L, Models, Config) {
         });
         this.tabsControl.addTo(this.map);
 
-        this.velocityView = VelocityView.velocityView(config).addTo(this);
+        if (this.display.velocity) {
+            this.velocityView = VelocityView.velocityView(config).addTo(this);
+        }
 
         // Register hotkeys
         window.onkeypress = function startStop(oKeyEvent) {
@@ -140,18 +146,20 @@ MapView = (function($, L, Models, Config) {
     MapView.prototype.redraw = function redraw(callback) {
         var self = this;
 
-        this.velocityView && this.velocityView.redraw(function vv_call(data) {
-            self.tabsControl && self.tabsControl.updateInfo(
-                {frame: self.currentFrame, date: data.date});
-            callback(data);
-        });
+        if (this.display.velocity) {
+            this.velocityView && this.velocityView.redraw(
+                function vv_call(data) {
+                    self.tabsControl && self.tabsControl.updateInfo(
+                        {frame: self.currentFrame, date: data.date});
+                        callback(data);
+                }
+            );
+        }
     };
 
 
     return {
         mapView: function mapView(config) { return new MapView(config); }
     };
-
-
 
 }(jQuery, L, Models, Config));
