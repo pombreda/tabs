@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import netCDF4 as netCDF
 import numpy as np
 from mpl_toolkits.basemap import Basemap
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import LineString, MultiLineString
 
 from octant_lite import rot2d, shrink
 
@@ -103,29 +103,42 @@ class THREDDSFrameSource(object):
                   'v': v[self.velocity_idx, self.velocity_idy]}
         return vector
 
-    def salt_frame(self, frame_number):
-        salt = self.nc.variables['salt'][frame_number, -1, :, :]
+    def salt_frame(self, frame_number, num_levels=10):
+        print(frame_number, num_levels)
+        salt = self.nc.variables['salt'][frame_number, 0, :, :]
         salt_range = (salt.max() - salt.min()) * 0.05
-        levels = np.linspace(
-            (salt.min() - salt_range),
-            (salt.max() + salt_range),
-            10)
-        contours = plt.contourf(self.salt_lon, self.salt_lat, salt, levels)
+        levels = np.logspace(
+            np.log(salt.min() - salt_range),
+            np.log(salt.max() + salt_range),
+            num_levels, True, np.exp(1))
 
-        multipolygons = []
-        for collection in contours.collections:
-            for path in collection.get_paths():
-                polys = []
-                for coords in path.to_polygons():
-                    polys.append(Polygon(coords))
-        multipolygons.append(MultiPolygon(polys))
+        plt.figure()
+        contours = plt.contour(self.salt_lon, self.salt_lat, salt, levels,
+                               extend='both')
+        geojson = self.contours_to_geoJSON(contours)
+        plt.close()
 
-        # contour_intervals = contours.cvalues
-        features = [mp.__geo_interface__ for mp in multipolygons]
-        geojson = {'type': 'FeatureCollection', 'features': features}
         frame = {'date': self.dates[frame_number].isoformat(),
                  'contours': geojson}
+
         return frame
+
+    def contours_to_geoJSON(self, contours):
+        features = []
+        for collection, cvalue in zip(contours.collections, contours.cvalues):
+            line_strings = [LineString(coords)
+                            for path in collection.get_paths()
+                            for coords in path.to_polygons()]
+            mls = MultiLineString(line_strings)
+            feat = {'type': 'Feature',
+                    'properties': {'color': collection.get_color(),
+                                   'cvalue': cvalue},
+                    'geometry': mls.__geo_interface__}
+
+            features.append(feat)
+
+        geojson = {'type': 'FeatureCollection', 'features': features}
+        return geojson
 
     def __del__(self):
         """docstring for __del__"""
