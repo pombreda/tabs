@@ -50,12 +50,13 @@ var VelocityView = (function($, L, Models, Config) {
         };
 
         // put the initial velocity vectors on the map
-        this.vfs.withVelocityGridLocations(function(points) {
+        this.vfs.withVelocityGridLocations({}, function(points) {
             self.points = points;
 
-            self.vfs.withVelocityFrame(
-                    mapView.currentFrame, points, mapView.mapScale(),
-                    function(data) {
+            var options = {frame: mapView.currentFrame,
+                           points: points,
+                           mapScale: mapView.mapScale()};
+            self.vfs.withVelocityFrame(options, function(data) {
                 var vectors = data.vectors;
                 for (var i = 0; i < vectors.length; i++) {
                     var line = L.polyline(vectors[i], style);
@@ -77,13 +78,13 @@ var VelocityView = (function($, L, Models, Config) {
             return this;
         }
 
-        var i = self.mapView.currentFrame;
-        self.vfs.withVelocityFrame(i, self.points, self.mapView.mapScale(),
-            function(data) {
-                drawVectors(data, self.vectorGroup);
-                callback && callback(data);
-            }
-        );
+        var options = {frame: mapView.currentFrame,
+                       points: points,
+                       mapScale: mapView.mapScale()};
+        self.vfs.withVelocityFrame(options, function(data) {
+            drawVectors(data, self.vectorGroup);
+            callback && callback(data);
+        });
     };
 
 

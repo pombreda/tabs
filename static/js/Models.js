@@ -129,22 +129,20 @@ Models.saltFrameSource = (function($, Config) {
 
     function SaltFrameSource(config) {
         $.extend(this, defaults, config);
-        // Salt frames are in lat,lon and are invariant w.r.t. mapscale
-        this._salt_frames = [];
+
+        // We don't need to cache salt frames because they currently come
+        // straight from the geoJSON.
+        // If that changes, we'll have to think about the right way to cache
+        // with multiple parameters and JS's ridiculous handling of Object.
     };
 
     SFS_proto = SaltFrameSource.prototype;
 
-    SFS_proto.withSaltFrame = function withSaltFrame(frame, callback) {
+    SFS_proto.withSaltFrame = function withSaltFrame(config, callback) {
         var self = this;
-        if (this._salt_frames[frame] === undefined) {
-            API.withSaltFrameJSON(frame, function(obj) {
-                self._salt_frames[frame] = obj;
-                callback && callback(obj);
-            });
-        } else {
-            callback && callback(self._salt_frames[frame]);
-        }
+        API.withSaltFrameJSON(config, function(obj) {
+            callback && callback(obj);
+        });
     };
 
     return function saltframeSource(config) {

@@ -45,11 +45,18 @@ var SaltView = (function($, L, Models, Config) {
             return this;
         }
 
-        var i = self.mapView.currentFrame;
-        self.sfs.withSaltFrame(i, function(data) {
-            drawContours(data, self.saltGroup);
-            callback && callback(data);
-        });
+        var config = {frame: self.mapView.currentFrame,
+                      numSaltLevels: self.numSaltLevels};
+        self.sfs.withSaltFrame(config, function(data) {
+                drawContours(data, self.saltGroup, function() {
+                    return {
+                        color: self.color,
+                        weight: self.weight
+                    };
+                });
+                callback && callback(data);
+            }
+        );
 
         return this;
     };
@@ -64,17 +71,10 @@ var SaltView = (function($, L, Models, Config) {
 
     // Private Functions
 
-    function drawContours(data, saltGroup) {
+    function drawContours(data, saltGroup, styleFunc) {
         saltGroup.clearLayers();
         saltGroup.addLayer(
-            L.geoJson(data.contours, {
-                style: function style() {
-                    return {
-                        color: this.color,
-                        weight: this.weight
-                    };
-                }
-            })
+            L.geoJson(data.contours, {style: styleFunc})
         );
     }
 
