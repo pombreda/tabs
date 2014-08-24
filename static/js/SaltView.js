@@ -2,8 +2,14 @@ var SaltView = (function($, L, Models, Config) {
 
     var defaults = {
 
-        // layer containing salt contour polylines
-        saltGroup: L.geoJson(),
+        // Layer for salinity heatmap
+        heatLayer: L.heatLayer([]),
+
+        // Layer containing contour polylines
+        contourLayer: L.geoJson(),
+
+        // Parent layer for all salinity visualizations
+        saltLayer: L.layerGroup(),
 
         // The number of contour levels to show
         numSaltLevels: 10,
@@ -22,6 +28,9 @@ var SaltView = (function($, L, Models, Config) {
 
         self.sfs = Models.saltFrameSource();
 
+        self.saltLayer.addLayer(self.heatLayer);
+        self.saltLayer.addLayer(self.contourLayer);
+
     };
 
 
@@ -32,7 +41,7 @@ var SaltView = (function($, L, Models, Config) {
 
         // Put the initial contours on the map
         this.redraw(function initialCallback() {
-            self.saltGroup.addTo(mapView.map);
+            self.saltLayer.addTo(mapView.map);
         });
 
         return this;
@@ -50,7 +59,8 @@ var SaltView = (function($, L, Models, Config) {
         var config = {frame: self.mapView.currentFrame,
                       numSaltLevels: self.numSaltLevels};
         self.sfs.withSaltFrame(config, function(data) {
-                drawContours(data, self.saltGroup, function() {
+                drawHeat(data['values'], self.heatLayer);
+                drawContours(data, self.contourLayer, function() {
                     return {
                         color: self.color,
                         weight: self.weight
@@ -73,11 +83,33 @@ var SaltView = (function($, L, Models, Config) {
 
     // Private Functions
 
-    function drawContours(data, saltGroup, styleFunc) {
-        saltGroup.clearLayers();
-        saltGroup.addLayer(
+    function drawContours(data, contourLayer, styleFunc) {
+        contourLayer.clearLayers();
+        contourLayer.addLayer(
             L.geoJson(data.contours, {style: styleFunc})
         );
+    }
+
+
+    function drawHeat(values, heatLayer) {
+        var latLngs = [];
+        var lat = values.lat;
+        var lng = values.lng;
+        var salt = values.salt;
+        for (var i = 0, len = salt.length; i < len; i++) {
+            latLngs.push([lat[i], lng[i], salt[i].toString()]);
+        }
+        // Manually set this to avoid redraw
+        heatLayer._latlngs = latLngs;
+
+        var options = {
+            max: 2,
+            blur: mapView.map.getZoom(),
+            radius: mapView.map.getZoom(),
+            // maxZoom: 1
+        };
+        console.log(options);
+        heatLayer.setOptions(options);
     }
 
 }(jQuery, L, Models, Config));
