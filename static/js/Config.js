@@ -1,8 +1,9 @@
 
 var Config = {
+
     // API
-    gridLocationsURL: '/data/thredds/grid',
-    vectorFrameURL: '/data/thredds/step/',
+    velocityGridLocationsURL: '/data/thredds/velocity/grid',
+    velocityFrameURL: '/data/thredds/velocity/step/',
     domainURL: '/data/prefetched/domain',
     tileLayerURL: 'https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3nibphe/{z}/{x}/{y}.png',
 
@@ -20,11 +21,15 @@ var Config = {
     // Pause between frames (in ms)
     delay: 90,
 
-    // Start animation immediately?
+    // Does the animation automatically start?
     isRunning: true,
 
-    // number of time steps to use
-    // nFrames: 90,
-    nFrames: 6
+    // Number of time steps to use
+    nFrames: 90,
+
+    // Which data is shown by default?
+    display: {
+        velocity: true
+    }
 
 };

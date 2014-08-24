@@ -10,7 +10,7 @@ import tempfile
 
 import numpy as np
 
-from ..thredds_vector_frame_source import main
+from ..thredds_frame_source import main
 
 
 np.random.seed(0xDEADBEEF)
@@ -24,9 +24,10 @@ NFRAMES = 6
 
 def diff_file(f_ref, f):
     try:
-        subprocess.check_call(['diff', '-y', f_ref, f])
-    except:
-        raise AssertionError("Files differ: {!r} {!r}".format(f_ref, f))
+        subprocess.check_output(['diff', '-y', f_ref, f])
+    except subprocess.CalledProcessError as e:
+        raise AssertionError("{}\n\nFiles differ: {!r} {!r}".format(e.output,
+                                                                    f_ref, f))
 
 
 def test_files():

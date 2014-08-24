@@ -1,5 +1,5 @@
 Models = {}
-Models.vectorFrameSource = (function($, Trig, Config) {
+Models.velocityFrameSource = (function($, Trig, Config) {
 
     var defaults = {
         barbLocation: Config.barbLocation,
@@ -8,15 +8,17 @@ Models.vectorFrameSource = (function($, Trig, Config) {
         arrowHeadAngle: Config.arrowHeadAngle
     };
 
-    function VectorFrameSource(config) {
+    function VelocityFrameSource(config) {
         $.extend(this, defaults, config);
-        this._vector_frames = {};
+        this._velocity_frames = {};
         this.setBarbLocation(this.barbLocation);
     };
 
+    VFS_proto = VelocityFrameSource.prototype;
 
-    // parse the velocity vectors and return lines in lat/lon space
-    VectorFrameSource.prototype._getDataSnapshot = function _getDataSnapshot(
+
+    // parse the velocity frames and return lines in lat/lon space
+    VFS_proto._getDataSnapshot = function _getDataSnapshot(
             points, scale, velocityVectors) {
         var nPoints = points.length;
         var vectors = [];
@@ -38,15 +40,17 @@ Models.vectorFrameSource = (function($, Trig, Config) {
         return {date: date, vectors: vectors};
     };
 
-    VectorFrameSource.prototype.setBarbLocation = function setBarbLocation(
+
+    VFS_proto.setBarbLocation = function setBarbLocation(
             barbLocation) {
         this.barbPosition = barbPositionFrom(
             this.barbDescriptions[barbLocation]);
     };
 
-    VectorFrameSource.prototype.withGridLocations = function withGridLocations(
+
+    VFS_proto.withVelocityGridLocations = function withVelocityGridLocations(
             callback) {
-        API.withGridLocationsJSON(function(data) {
+        API.withVelocityGridLocationsJSON(function(data) {
             var nPoints = data['lat'].length;
             var points = new Array(nPoints);
             for (var i = 0; i < nPoints; i++) {
@@ -56,25 +60,27 @@ Models.vectorFrameSource = (function($, Trig, Config) {
         });
     };
 
-    VectorFrameSource.prototype.withVectorFrame = function withVectorFrame(
+
+    VFS_proto.withVelocityFrame = function withVelocityFrame(
             frame, points, scale, callback) {
         var self = this;
-        if (this._vector_frames[scale] === undefined) {
-            this._vector_frames[scale] = [];
+        if (this._velocity_frames[scale] === undefined) {
+            this._velocity_frames[scale] = [];
         }
-        if (this._vector_frames[scale][frame] === undefined) {
-            API.withVectorFrameJSON(frame, function(obj) {
+        if (this._velocity_frames[scale][frame] === undefined) {
+            API.withVelocityFrameJSON(frame, function(obj) {
                 var vector_frame = self._getDataSnapshot(points, scale, obj);
-                self._vector_frames[scale][frame] = vector_frame;
+                self._velocity_frames[scale][frame] = vector_frame;
                 callback(vector_frame);
             });
         } else {
-            callback(self._vector_frames[scale][frame]);
+            callback(self._velocity_frames[scale][frame]);
         }
     };
 
-    return function vectorFrameSource(config) {
-        return new VectorFrameSource(config);
+
+    return function velocityFrameSource(config) {
+        return new VelocityFrameSource(config);
     };
 
 

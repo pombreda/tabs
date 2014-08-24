@@ -2,56 +2,39 @@ MapView = (function($, L, Models, Config) {
 
     var defaults = {
 
-        // speed of animation (larger is slower)
+        display: Config.display,
+
+        // Speed of animation (larger is slower)
         delay: Config.delay,
 
-        // global layer to update vector multiPolylines
-        vectorGroup: L.layerGroup([]),
-
-
+        // Does the animation automatically start?
         isRunning: Config.isRunning,
 
-        // The locations of the data points
-        points: [],
-
-
-        // number of time steps to use
+        // Number of time steps to use
         nFrames: Config.nFrames,
 
-        // initial zoom level
+        // Initial zoom level
         minZoom: Config.minZoom,
         defaultZoom: Config.defaultZoom,
         maxZoom: Config.maxZoom,
-
-        // Position of the barbs on the arrows ('head', 'center', 'tail')
-        barbLocation: Config.barbLocation,
-
-        // Fraction of vector length to make arrow strokes
-        arrowHeadSize: Config.arrowHeadSize,
-
-        // Degrees!
-        arrowHeadAngle: Config.arrowHeadAngle,
 
         tileLayerURL: Config.tileLayerURL,
 
         attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
 
-        domainURL: Config.domainURL,
-
-
+        // Outline of the region of interest
+        domainURL: Config.domainURL
 
     };
 
-    var MapView = function(config) {
+
+    var MapView = function MapView(config) {
 
         var self = this;
 
         $.extend(this, defaults, config);
 
         this.currentFrame = 0;
-
-        // Convert to radians
-        this.arrowHeadAngle *= Math.PI / 180;
 
         var mapboxTiles = L.tileLayer(this.tileLayerURL, {
             attribution: this.attribution,
@@ -72,6 +55,7 @@ MapView = (function($, L, Models, Config) {
         });
 
 
+        // Add map components
         this.tabsControl = new TABSControl.tabsControl({
             nFrames: this.nFrames,
             onclick: function onclick() {
@@ -79,50 +63,27 @@ MapView = (function($, L, Models, Config) {
             }
         });
         this.tabsControl.addTo(this.map);
+
+        if (this.display.velocity) {
+            this.velocityView = VelocityView.velocityView(config).addTo(this);
+        }
+
+        // Register hotkeys
         window.onkeypress = function startStop(oKeyEvent) {
             if (oKeyEvent.charCode === 32) {
-                mapView.tabsControl.options.onclick();
+                self.isRunning ? self.stop() : self.start();
             }
         };
 
-        this.vfs = Models.vectorFrameSource({
-            barbLocation: this.barbLocation,
-            arrowHeadSize: this.arrowHeadSize,
-            arrowHeadAngle: this.arrowHeadAngle});
-
-        // put the initial velocity vectors on the map
-        this.vfs.withGridLocations(function(points) {
-            self.points = points;
-            self.addVectorLayer(self.points);
-        });
-
     };
 
-    // add a vector layer to the map at the initial grid points
-    MapView.prototype.addVectorLayer = function addVectorLayer(points) {
-        var self = this;
-
-        var vectorStyle = {
-            color: 'black',
-            weight: 1
-        };
-
-        this.vfs.withVectorFrame(
-                0, points, this.mapScale(), function(data) {
-            var vectors = data.vectors;
-            for (var i = 0; i < vectors.length; i++) {
-                var line = L.polyline(vectors[i], vectorStyle);
-                self.vectorGroup.addLayer(line);
-            }
-            self.vectorGroup.addTo(mapView.map);
-        });
-    };
 
     MapView.prototype.mapScale = function mapScale() {
         var scale = 0.5;     // vector scaling (m/s -> degrees) at default zoom
         var zoom = this.map.getZoom();
         return scale * Math.pow(2, this.defaultZoom - zoom);
     };
+
 
     // hard-coded region of interest outline
     MapView.prototype.addRegionOutline = function addRegionOutline() {
@@ -139,17 +100,20 @@ MapView = (function($, L, Models, Config) {
             .addTo(this.map);
     };
 
+
     // update vector data at each time step
     MapView.prototype.showTimeStep = function showTimeStep(i, callback) {
         this.currentFrame = i;
         this.redraw(callback);
     };
 
+
     MapView.prototype.start = function start() {
         this.isRunning = true;
         this.t = Date.now();
         this._run();
     };
+
 
     MapView.prototype._run = function _run() {
         var self = this;
@@ -173,37 +137,29 @@ MapView = (function($, L, Models, Config) {
         }
     };
 
+
     MapView.prototype.stop = function stop() {
         this.isRunning = false;
     };
 
+
     MapView.prototype.redraw = function redraw(callback) {
         var self = this;
-        var i = self.currentFrame;
-        self.vfs.withVectorFrame(i, self.points, self.mapScale(),
-            function(data) {
-                drawVectors(data, self.vectorGroup, self.tabsControl);
-                self.tabsControl.updateInfo({frame: i, date: data.date});
-                callback && callback(data);
-            }
-        );
+
+        if (this.display.velocity) {
+            this.velocityView && this.velocityView.redraw(
+                function vv_call(data) {
+                    self.tabsControl && self.tabsControl.updateInfo(
+                        {frame: self.currentFrame, date: data.date});
+                        callback(data);
+                }
+            );
+        }
     };
 
 
     return {
         mapView: function mapView(config) { return new MapView(config); }
     };
-
-
-    // Private Functions
-
-    function drawVectors(data, lines) {
-        if (lines) {
-            lines.eachLayer(function _redraw(layer) {
-                layer.setLatLngs(this.latLngs[this.i++]);
-            }, {latLngs: data.vectors, i: 0});
-        }
-    }
-
 
 }(jQuery, L, Models, Config));
