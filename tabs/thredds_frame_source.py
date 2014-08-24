@@ -106,10 +106,14 @@ class THREDDSFrameSource(object):
     def salt_frame(self, frame_number, num_levels=10):
         salt = self.nc.variables['salt'][frame_number, 0, :, :]
         salt_range = (salt.max() - salt.min()) * 0.05
-        levels = np.logspace(
-            np.log(salt.min() - salt_range),
-            np.log(salt.max() + salt_range),
-            num_levels, True, np.exp(1))
+        # levels = np.logspace(
+            # np.log(salt.min() - salt_range),
+            # np.log(salt.max() + salt_range),
+            # num_levels, True, np.exp(1))
+        levels = np.linspace(
+            (salt.min() - salt_range),
+            (salt.max() + salt_range),
+            num_levels)
 
         plt.figure()
         contours = plt.contour(self.salt_lon, self.salt_lat, salt, levels,
