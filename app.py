@@ -79,6 +79,8 @@ tc = THREDDS_CONNECTION(data_uri=thredds_frame_source.DEFAULT_DATA_URI,
 
 
 def jsonify_dict_of_array(obj):
+    """ Return a copy of obj with list and array values turned into lists that
+    have been rounded to four decimals. """
     obj = obj.copy()
     for k in obj:
         if isinstance(obj[k], (np.ndarray, list)):
@@ -104,12 +106,13 @@ def domain():
 
 @app.route('/data/thredds/velocity/grid')
 def thredds_grid():
+    """ Return the grid points for the velocity frames. """
     return json.dumps(jsonify_dict_of_array(tc.fs.velocity_grid))
 
 
 @app.route('/data/prefetched/velocity/grid')
 def static_grid():
-    """ Return the grid locations """
+    """ Return the grid points for the velocity frames. """
     filename = 'data/json/grd_locations.json'
     return redirect(url_for('static', filename=filename))
 
@@ -118,6 +121,7 @@ def static_grid():
 
 @app.route('/data/thredds/velocity/step/<int:time_step>')
 def thredds_velocity_frame(time_step):
+    """ Return the velocity frame corresponding to `time_step`. """
     vs = tc.fs.velocity_frame(time_step)
     vs = jsonify_dict_of_array(vs)
     return json.dumps(vs)
@@ -125,7 +129,7 @@ def thredds_velocity_frame(time_step):
 
 @app.route('/data/prefetched/velocity/step/<int:time_step>')
 def static_velocity_frame(time_step):
-    """ Return static JSON data for a time step """
+    """ Return the velocity frame corresponding to `time_step`. """
     filename = 'data/json/step{}.json'.format(time_step)
     return redirect(url_for('static', filename=filename))
 
