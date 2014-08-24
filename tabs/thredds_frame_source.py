@@ -121,8 +121,16 @@ class THREDDSFrameSource(object):
         geojson = self.contours_to_geoJSON(contours)
         plt.close()
 
+        idx = ~salt.mask
+        values = {'lat': self.salt_lat[idx].round(4).tolist(),
+                  'lng': self.salt_lon[idx].round(4).tolist(),
+                  'salt': salt[idx].round(4).tolist(),
+                  'min': float(salt[idx].min()),
+                  'max': float(salt[idx].max())}
+
         frame = {'date': self.dates[frame_number].isoformat(),
-                 'contours': geojson}
+                 'contours': geojson,
+                 'values': values}
 
         return frame
 
