@@ -74,13 +74,13 @@ var VelocityView = (function($, L, Models, Config) {
         var self = this;
 
         // If we haven't been added to a map we don't bother redrawing
-        if (!self.mapView) {
+        if (!self.mapView || !self.points.length) {
             return this;
         }
 
-        var options = {frame: mapView.currentFrame,
-                       points: points,
-                       mapScale: mapView.mapScale()};
+        var options = {frame: self.mapView.currentFrame,
+                       points: self.points,
+                       mapScale: self.mapView.mapScale()};
         self.vfs.withVelocityFrame(options, function(data) {
             drawVectors(data, self.vectorGroup);
             callback && callback(data);
