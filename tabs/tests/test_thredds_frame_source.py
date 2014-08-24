@@ -24,7 +24,7 @@ NFRAMES = 6
 
 def diff_file(f_ref, f):
     try:
-        print(subprocess.check_output(['diff', '-y', f_ref, f]))
+        subprocess.check_output(['diff', '-y', f_ref, f])
     except subprocess.CalledProcessError as e:
         raise AssertionError("{}\n\nFiles differ: {!r} {!r}".format(e.output,
                                                                     f_ref, f))
