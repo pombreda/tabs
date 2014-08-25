@@ -146,7 +146,7 @@ class THREDDSFrameSource(object):
 
             # Numpy types apparently don't serialize to json
             rgba = contours.to_rgba(cvalue, bytes=True)
-            opacity = int(rgba[-1]) / 256.0
+            opacity = int(rgba[-1]) / 255.0
             rgb = (rgba[0] << 16) + (rgba[1] << 8) + rgba[2]
             hex_color = "#{:06x}".format(rgb)
             feat = {'type': 'Feature',
