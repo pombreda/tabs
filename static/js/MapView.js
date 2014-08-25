@@ -64,7 +64,8 @@ MapView = (function($, L, Models, Config) {
         });
         this.tabsControl.addTo(this.map);
 
-        this.distanceScaleControl = L.control.scale();
+        this.distanceScaleControl = L.control.scale(
+            Config.distanceScaleOptions);
         this.distanceScaleControl.addTo(this.map);
 
 
