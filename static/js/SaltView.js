@@ -9,8 +9,8 @@ var SaltView = (function($, L, Models, Config) {
         numSaltLevels: 10,
 
         // Contour artist parameters
-        color: 'black',
-        weight: 1
+        strokeColor: 'black',
+        strokeWeight: 0.5
 
     };
 
@@ -50,16 +50,9 @@ var SaltView = (function($, L, Models, Config) {
         var config = {frame: self.mapView.currentFrame,
                       numSaltLevels: self.numSaltLevels};
         self.sfs.withSaltFrame(config, function(data) {
-                drawContours(data, self.saltGroup, function() {
-                    return {
-                        color: self.color,
-                        weight: self.weight
-                    };
-                });
-                callback && callback(data);
-            }
-        );
-
+            drawContours(data, self.saltGroup, featureStyleFunc(self));
+            callback && callback(data);
+        });
         return this;
     };
 
@@ -72,6 +65,17 @@ var SaltView = (function($, L, Models, Config) {
 
 
     // Private Functions
+
+    function featureStyleFunc(options) {
+        function featureStyleFuncInner(feature) {
+            return {
+                fillColor: feature.properties.color || options.fillColor,
+                fillOpacity: feature.properties.opacity || options.fillOpacity,
+                weight: options.strokeWeight
+                color: options.strokeColor
+            };
+    }
+
 
     function drawContours(data, saltGroup, styleFunc) {
         saltGroup.clearLayers();

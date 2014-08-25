@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import netCDF4 as netCDF
 import numpy as np
 from mpl_toolkits.basemap import Basemap
-from shapely.geometry import LineString, MultiLineString
+from shapely.geometry import Polygon, MultiPolygon
 
 from octant_lite import rot2d, shrink
 
@@ -116,8 +116,8 @@ class THREDDSFrameSource(object):
             num_levels)
 
         plt.figure()
-        contours = plt.contour(self.salt_lon, self.salt_lat, salt, levels,
-                               extend='both')
+        contours = plt.contourf(self.salt_lon, self.salt_lat, salt, levels,
+                                extend='both')
         geojson = self.contours_to_geoJSON(contours)
         plt.close()
 
@@ -129,12 +129,27 @@ class THREDDSFrameSource(object):
     def contours_to_geoJSON(self, contours):
         features = []
         for collection, cvalue in zip(contours.collections, contours.cvalues):
-            line_strings = [LineString(coords)
-                            for path in collection.get_paths()
-                            for coords in path.to_polygons()]
-            mls = MultiLineString(line_strings)
+            line_strings = []
+            for path in collection.get_paths():
+                path.should_simplify = False
+                for coords in path.to_polygons():
+                    line_strings.append(Polygon(coords))
+
+            # Some multipolygons are empty, which breaks everything
+            if not line_strings:
+                continue
+
+            mls = MultiPolygon(line_strings)
+
+            # Numpy types apparently don't serialize to json
+            rgba = contours.to_rgba(cvalue, bytes=True)
+            opacity = int(rgba[-1]) / 256.0
+            rgb = (rgba[0] << 16) + (rgba[1] << 8) + rgba[2]
+            hex_color = "#{:06x}".format(rgb)
             feat = {'type': 'Feature',
-                    'properties': {'color': collection.get_color()[0].tolist(),
+                    'properties': {'fillColor': hex_color,
+                                   'color': hex_color,
+                                   'fillOpacity': opacity,
                                    'cvalue': cvalue},
                     'geometry': mls.__geo_interface__}
 
