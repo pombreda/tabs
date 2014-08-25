@@ -151,7 +151,6 @@ class THREDDSFrameSource(object):
             hex_color = "#{:06x}".format(rgb)
             feat = {'type': 'Feature',
                     'properties': {'fillColor': hex_color,
-                                   'color': hex_color,
                                    'fillOpacity': opacity,
                                    'cvalue': cvalue},
                     'geometry': mls.__geo_interface__}
