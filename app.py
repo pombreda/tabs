@@ -139,7 +139,9 @@ def static_velocity_frame(time_step):
 @app.route('/data/thredds/salt/step/<int:time_step>')
 def thredds_salt_frame(time_step):
     num_levels = request.args.get('numSaltLevels', 10)
-    salt = tc.fs.salt_frame(time_step, num_levels=num_levels)
+    logspace = 'logspace' in request.args
+    salt = tc.fs.salt_frame(
+        time_step, num_levels=num_levels, logspace=logspace)
     return json.dumps(salt)
 
 if __name__ == '__main__':

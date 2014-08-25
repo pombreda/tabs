@@ -51,7 +51,9 @@ API = (function(Config, $) {
             options.frame = 0;
         }
         var url = Config.saltFrameURL;
-        var query = $.query.set('numSaltLevels', options.numSaltLevels);
+        var query = $.query
+            .set('numSaltLevels', options.numSaltLevels)
+            .set('logspace', options.logspaceSaltLevels);
         return url + options.frame + query;
     }
 
