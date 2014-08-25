@@ -14,6 +14,21 @@ var Config = {
     arrowHeadSize: 0.15,
     arrowHeadAngle: 60,
 
+    // Contour style
+    contourOptions: {
+        numSaltLevels: 10,
+        logspaceSaltLevels: false,
+        // Contour outline color (Undefined matches the fill color)
+        // color: 'black',
+        // Contour outline weight
+        weight: 0.5,
+        // Contour outline opacity
+        opacity: 1,
+        // Contour fill opacity
+        fillOpacity: 0.3
+    },
+
+
     // Map view config
     minZoom: 7,
     defaultZoom: 7,

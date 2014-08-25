@@ -6,11 +6,13 @@ var SaltView = (function($, L, Models, Config) {
         saltGroup: L.geoJson(),
 
         // The number of contour levels to show
-        numSaltLevels: 10,
+        numSaltLevels: Config.numSaltLevels,
+
+        // The scale to use for setting contour levels
+        logspaceSaltLevels: Config.logspaceSaltLevels,
 
         // Contour artist parameters
-        strokeColor: 'black',
-        strokeWeight: 0.5
+        contourOptions: Config.contourOptions
 
     };
 
@@ -44,16 +46,17 @@ var SaltView = (function($, L, Models, Config) {
 
         // If we haven't been added to a map we don't bother redrawing
         if (!self.mapView) {
-            return this;
+            return self;
         }
 
-        var config = {frame: self.mapView.currentFrame,
-                      numSaltLevels: self.numSaltLevels};
+        var config = $.extend({frame: self.mapView.currentFrame},
+                              self.contourOptions);
         self.sfs.withSaltFrame(config, function(data) {
-            drawContours(data, self.saltGroup, featureStyleFunc(self));
+            drawContours(data, self.saltGroup,
+                         featureStyleFunc(config));
             callback && callback(data);
         });
-        return this;
+        return self;
     };
 
 
@@ -68,12 +71,11 @@ var SaltView = (function($, L, Models, Config) {
 
     function featureStyleFunc(options) {
         function featureStyleFuncInner(feature) {
-            return {
-                fillColor: feature.properties.color || options.fillColor,
-                fillOpacity: feature.properties.opacity || options.fillOpacity,
-                weight: options.strokeWeight
-                color: options.strokeColor
-            };
+            var config = $.extend({}, options, feature.properties);
+            config.color = config.color || config.fillColor;
+            return config;
+        }
+        return featureStyleFuncInner;
     }
 
 
