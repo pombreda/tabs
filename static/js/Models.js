@@ -49,9 +49,9 @@ Models.velocityFrameSource = (function($, Trig, Config) {
 
 
     VFS_proto.withVelocityGridLocations = function withVelocityGridLocations(
-            callback) {
+            options, callback) {
+        API.withVelocityGridLocationsJSON(options, function(data) {
         if (callback === undefined) console.log('Callback undefined');
-        API.withVelocityGridLocationsJSON(function(data) {
             var nPoints = data['lat'].length;
             var points = new Array(nPoints);
             for (var i = 0; i < nPoints; i++) {
@@ -63,14 +63,17 @@ Models.velocityFrameSource = (function($, Trig, Config) {
 
 
     VFS_proto.withVelocityFrame = function withVelocityFrame(
-            frame, points, scale, callback) {
+            options, callback) {
         if (callback === undefined) console.log('Callback undefined');
         var self = this;
+        var scale = options.mapScale;
+        var frame = options.frame;
+        var points = options.points;
         if (this._velocity_frames[scale] === undefined) {
             this._velocity_frames[scale] = [];
         }
         if (this._velocity_frames[scale][frame] === undefined) {
-            API.withVelocityFrameJSON(frame, function(obj) {
+            API.withVelocityFrameJSON(options, function(obj) {
                 var vector_frame = self._getDataSnapshot(points, scale, obj);
                 self._velocity_frames[scale][frame] = vector_frame;
                 callback && callback(vector_frame);
@@ -122,3 +125,34 @@ Models.velocityFrameSource = (function($, Trig, Config) {
     }
 
 }(jQuery, Trig, Config));
+
+
+Models.saltFrameSource = (function($, Config) {
+
+    var defaults = {
+    };
+
+    function SaltFrameSource(config) {
+        $.extend(this, defaults, config);
+
+        // We don't need to cache salt frames because they currently come
+        // straight from the geoJSON.
+        // If that changes, we'll have to think about the right way to cache
+        // with multiple parameters and JS's ridiculous handling of Object.
+    };
+
+    SFS_proto = SaltFrameSource.prototype;
+
+    SFS_proto.withSaltFrame = function withSaltFrame(config, callback) {
+        var self = this;
+        API.withSaltFrameJSON(config, function(obj) {
+            callback && callback(obj);
+        });
+    };
+
+    return function saltframeSource(config) {
+        return new SaltFrameSource(config);
+    };
+
+
+}(jQuery, Config));

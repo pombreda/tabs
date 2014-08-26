@@ -18,6 +18,7 @@ var TABSControl = (function() {
             L.setOptions(this, defaults);
             L.setOptions(this, options);
             this.frame = 0;
+            this.numSaltLevels = 0;
             this.date = new Date();
         },
 
@@ -39,28 +40,54 @@ var TABSControl = (function() {
 
         updateInfo: function(info) {
             if (info) {
-                if (info.hasOwnProperty('frame')) {
+
+                if (info.frame !== undefined) {
                     this.frame = info.frame;
                 }
-                if (info.hasOwnProperty('date')) {
+
+                if (info.date !== undefined) {
                     if (info.date[info.date.length - 1] != 'Z') {
                         info.date += 'Z';
                     }
                     this.date = new Date(Date.parse(info.date));
+                }
+
+                if (info.numSaltLevels !== undefined) {
+                    this.numSaltLevels = info.numSaltLevels;
                 }
                 this._redraw();
             }
         },
 
         _redraw: function() {
+            var self = this;
             var nFrames = this.options.nFrames;
-            this.container.innerHTML = (
-                this._renderDate() + '<br/>' +
-                'Frame: ' + this.frame.padLeft(2) + ' / ' + nFrames);
+            this.container.innerHTML = this._renderLines([
+                self._renderDate(self.date),
+                self._renderFrameCount(self.frame, nFrames),
+                self._renderSaltLevels(self.numSaltLevels)
+            ]);
         },
 
-        _renderDate: function() {
-            var d = this.date;
+        _renderLines: function renderLines(lines) {
+            text = [];
+            for (var i = 0, len = lines.length; i < len; i++) {
+                if (lines[i]) {
+                    text.push(lines[i]);
+                }
+            }
+            return text.join('<br/>');
+        },
+
+        _renderFrameCount: function renderFrameCount(frame, nFrames) {
+            return 'Frame: ' + frame.padLeft(2) + ' / ' + nFrames;
+        },
+
+        _renderSaltLevels: function renderSaltLevels(levels) {
+            return levels ? 'Contour Levels: ' + levels : '';
+        },
+
+        _renderDate: function renderDate(d) {
             var day_month_year = [d.getUTCDate().padLeft(),
                                   monthStrings[d.getUTCMonth()],
                                   d.getFullYear()].join(' ');

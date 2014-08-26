@@ -4,6 +4,7 @@ var Config = {
     // API
     velocityGridLocationsURL: '/data/thredds/velocity/grid',
     velocityFrameURL: '/data/thredds/velocity/step/',
+    saltFrameURL: '/data/thredds/salt/step/',
     domainURL: '/data/prefetched/domain',
     tileLayerURL: 'https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3nibphe/{z}/{x}/{y}.png',
 
@@ -12,6 +13,23 @@ var Config = {
     barbDescriptions: {tail: 0, center: 0.5, head: 1.0},
     arrowHeadSize: 0.15,
     arrowHeadAngle: 60,
+
+    // Contour style
+    contourOptions: {
+        numSaltLevels: 10,
+        logspaceSaltLevels: false,
+
+        // Parameters defined here override the data
+        // Contour outline color (Undefined matches the fill color)
+        // color: 'black',
+        // Contour outline weight
+        weight: 0.5,
+        // Contour outline opacity
+        opacity: 1,
+        // Contour fill opacity
+        fillOpacity: 0.5
+    },
+
 
     // Map view config
     minZoom: 7,
@@ -29,7 +47,8 @@ var Config = {
 
     // Which data is shown by default?
     display: {
-        velocity: true
+        velocity: false,
+        salinity: true
     }
 
 };

@@ -32,19 +32,19 @@ MapView = (function($, L, Models, Config) {
 
         var self = this;
 
-        $.extend(this, defaults, config);
+        $.extend(self, defaults, config);
 
-        this.currentFrame = 0;
+        self.currentFrame = 0;
 
-        var mapboxTiles = L.tileLayer(this.tileLayerURL, {
-            attribution: this.attribution,
-            maxZoom: this.maxZoom,
-            minZoom: this.minZoom
+        var mapboxTiles = L.tileLayer(self.tileLayerURL, {
+            attribution: self.attribution,
+            maxZoom: self.maxZoom,
+            minZoom: self.minZoom
         });
 
         // Leaflet map object
         this.map = L.map('map', {center: [27, -94],
-                                 zoom: this.defaultZoom,
+                                 zoom: self.defaultZoom,
                                  layers: [mapboxTiles]});
 
         // Re-render when map conditions change
@@ -57,16 +57,22 @@ MapView = (function($, L, Models, Config) {
 
         // Add map components
         this.tabsControl = new TABSControl.tabsControl({
-            nFrames: this.nFrames,
+            nFrames: self.nFrames,
             onclick: function onclick() {
                 self.isRunning ? self.stop() : self.start();
             }
         });
-        this.tabsControl.addTo(this.map);
+        self.tabsControl.addTo(self.map);
 
-        if (this.display.velocity) {
-            this.velocityView = VelocityView.velocityView(config).addTo(this);
+        if (self.display.velocity) {
+            self.velocityView = VelocityView.velocityView(config).addTo(self);
         }
+
+        if (self.display.salinity) {
+            self.saltView = SaltView.saltView(config).addTo(self);
+        }
+
+        self.redraw();
 
         // Register hotkeys
         window.onkeypress = function startStop(oKeyEvent) {
@@ -146,12 +152,22 @@ MapView = (function($, L, Models, Config) {
     MapView.prototype.redraw = function redraw(callback) {
         var self = this;
 
-        if (callback === undefined) console.log('Callback undefined');
         if (this.display.velocity) {
             this.velocityView && this.velocityView.redraw(
                 function vv_call(data) {
                     self.tabsControl && self.tabsControl.updateInfo(
                         {frame: self.currentFrame, date: data.date});
+                        callback && callback(data);
+                }
+            );
+        }
+
+        if (this.display.salinity) {
+            this.saltView && this.saltView.redraw(
+                function salt_call(data) {
+                    self.tabsControl && self.tabsControl.updateInfo(
+                        {frame: self.currentFrame, date: data.date,
+                         numSaltLevels: self.saltView.numSaltLevels});
                         callback && callback(data);
                 }
             );
