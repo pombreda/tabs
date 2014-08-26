@@ -64,6 +64,12 @@ MapView = (function($, L, Models, Config) {
         });
         self.tabsControl.addTo(self.map);
 
+        self.distanceScaleControl = L.control.scale(
+            Config.distanceScaleOptions);
+        self.distanceScaleControl.addTo(self.map);
+
+
+        // Add visualization layers
         if (self.display.velocity) {
             self.velocityView = VelocityView.velocityView(config).addTo(self);
         }
