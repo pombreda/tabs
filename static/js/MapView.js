@@ -64,14 +64,14 @@ MapView = (function($, L, Models, Config) {
         });
         self.tabsControl.addTo(self.map);
 
-        this.distanceScaleControl = L.control.scale(
+        self.distanceScaleControl = L.control.scale(
             Config.distanceScaleOptions);
-        this.distanceScaleControl.addTo(this.map);
+        self.distanceScaleControl.addTo(self.map);
 
 
         // Add visualization layers
-        if (this.display.velocity) {
-            this.velocityView = VelocityView.velocityView(config).addTo(this);
+        if (self.display.velocity) {
+            self.velocityView = VelocityView.velocityView(config).addTo(self);
         }
 
         if (self.display.salinity) {
