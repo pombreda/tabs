@@ -47,8 +47,8 @@ var Config = {
 
     // Which data is shown by default?
     display: {
-        velocity: false,
-        salinity: true
+        velocity: true,
+        salinity: false
     }
 
 };
