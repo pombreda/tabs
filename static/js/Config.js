@@ -27,7 +27,7 @@ var Config = {
         // Contour outline opacity
         opacity: 1,
         // Contour fill opacity
-        fillOpacity: 0.3
+        fillOpacity: 0.5
     },
 
 
