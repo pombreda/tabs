@@ -146,12 +146,13 @@ MapView = (function($, L, Models, Config) {
     MapView.prototype.redraw = function redraw(callback) {
         var self = this;
 
+        if (callback === undefined) console.log('Callback undefined');
         if (this.display.velocity) {
             this.velocityView && this.velocityView.redraw(
                 function vv_call(data) {
                     self.tabsControl && self.tabsControl.updateInfo(
                         {frame: self.currentFrame, date: data.date});
-                        callback(data);
+                        callback && callback(data);
                 }
             );
         }

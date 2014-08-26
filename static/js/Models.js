@@ -50,19 +50,21 @@ Models.velocityFrameSource = (function($, Trig, Config) {
 
     VFS_proto.withVelocityGridLocations = function withVelocityGridLocations(
             callback) {
+        if (callback === undefined) console.log('Callback undefined');
         API.withVelocityGridLocationsJSON(function(data) {
             var nPoints = data['lat'].length;
             var points = new Array(nPoints);
             for (var i = 0; i < nPoints; i++) {
                 points[i] = [data.lat[i], data.lon[i]];
             }
-            callback(points);
+            callback && callback(points);
         });
     };
 
 
     VFS_proto.withVelocityFrame = function withVelocityFrame(
             frame, points, scale, callback) {
+        if (callback === undefined) console.log('Callback undefined');
         var self = this;
         if (this._velocity_frames[scale] === undefined) {
             this._velocity_frames[scale] = [];
@@ -71,10 +73,10 @@ Models.velocityFrameSource = (function($, Trig, Config) {
             API.withVelocityFrameJSON(frame, function(obj) {
                 var vector_frame = self._getDataSnapshot(points, scale, obj);
                 self._velocity_frames[scale][frame] = vector_frame;
-                callback(vector_frame);
+                callback && callback(vector_frame);
             });
         } else {
-            callback(self._velocity_frames[scale][frame]);
+            callback && callback(self._velocity_frames[scale][frame]);
         }
     };
 
