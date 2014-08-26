@@ -2,7 +2,7 @@ MapView = (function($, L, Models, Config) {
 
     var defaults = {
 
-        display: Config.display,
+        visibleLayers: Config.visibleLayers,
 
         // Speed of animation (larger is slower)
         delay: Config.delay,
@@ -70,11 +70,11 @@ MapView = (function($, L, Models, Config) {
 
 
         // Add visualization layers
-        if (self.display.velocity) {
+        if (self.visibleLayers.velocity) {
             self.velocityView = VelocityView.velocityView(config).addTo(self);
         }
 
-        if (self.display.salinity) {
+        if (self.visibleLayers.salinity) {
             self.saltView = SaltView.saltView(config).addTo(self);
         }
 
@@ -158,7 +158,7 @@ MapView = (function($, L, Models, Config) {
     MapView.prototype.redraw = function redraw(callback) {
         var self = this;
 
-        if (this.display.velocity) {
+        if (this.visibleLayers.velocity) {
             this.velocityView && this.velocityView.redraw(
                 function vv_call(data) {
                     self.tabsControl && self.tabsControl.updateInfo(
@@ -168,7 +168,7 @@ MapView = (function($, L, Models, Config) {
             );
         }
 
-        if (this.display.salinity) {
+        if (this.visibleLayers.salinity) {
             this.saltView && this.saltView.redraw(
                 function salt_call(data) {
                     self.tabsControl && self.tabsControl.updateInfo(

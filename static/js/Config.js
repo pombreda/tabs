@@ -62,7 +62,7 @@ var Config = {
     },
 
     // Which data is shown by default?
-    display: {
+    visibleLayers: {
         velocity: true,
         salinity: false
     }
