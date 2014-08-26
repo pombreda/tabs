@@ -6,7 +6,8 @@ API = (function(Config, $) {
         if (_json[url] == undefined) {
             $.getJSON(url, function(json) {
                 _json[url] = json;
-                callback(json);
+                if (callback === undefined) console.log('Callback undefined');
+                callback && callback(json);
             });
         } else {
             callback(_json[url]);
@@ -14,11 +15,13 @@ API = (function(Config, $) {
     }
 
     function withVelocityFrameJSON(options, callback) {
+        if (callback === undefined) console.log('Callback undefined');
         withJSON(urlForVelocityFrame(options), callback);
     }
 
 
     function withVelocityGridLocationsJSON(options, callback) {
+        if (callback === undefined) console.log('Callback undefined');
         withJSON(Config.velocityGridLocationsURL, callback);
     }
 

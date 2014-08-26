@@ -51,18 +51,20 @@ Models.velocityFrameSource = (function($, Trig, Config) {
     VFS_proto.withVelocityGridLocations = function withVelocityGridLocations(
             options, callback) {
         API.withVelocityGridLocationsJSON(options, function(data) {
+        if (callback === undefined) console.log('Callback undefined');
             var nPoints = data['lat'].length;
             var points = new Array(nPoints);
             for (var i = 0; i < nPoints; i++) {
                 points[i] = [data.lat[i], data.lon[i]];
             }
-            callback(points);
+            callback && callback(points);
         });
     };
 
 
     VFS_proto.withVelocityFrame = function withVelocityFrame(
             options, callback) {
+        if (callback === undefined) console.log('Callback undefined');
         var self = this;
         var scale = options.mapScale;
         var frame = options.frame;
