@@ -2,7 +2,7 @@ var VelocityView = (function($, L, Models, Config) {
 
     var defaults = {
 
-        // global layer to update vector multiPolylines
+        // layer containing vector polylines
         vectorGroup: L.layerGroup([]),
 
         // The locations of the data points
@@ -44,21 +44,22 @@ var VelocityView = (function($, L, Models, Config) {
 
         this.mapView = mapView;
 
-        var vectorStyle = {
+        var style = {
             color: this.color,
             weight: this.weight
         };
 
         // put the initial velocity vectors on the map
-        this.vfs.withVelocityGridLocations(function(points) {
+        this.vfs.withVelocityGridLocations({}, function(points) {
             self.points = points;
 
-            self.vfs.withVelocityFrame(
-                    mapView.currentFrame, points, mapView.mapScale(),
-                    function(data) {
+            var options = {frame: mapView.currentFrame,
+                           points: points,
+                           mapScale: mapView.mapScale()};
+            self.vfs.withVelocityFrame(options, function(data) {
                 var vectors = data.vectors;
                 for (var i = 0; i < vectors.length; i++) {
-                    var line = L.polyline(vectors[i], vectorStyle);
+                    var line = L.polyline(vectors[i], style);
                     self.vectorGroup.addLayer(line);
                 }
                 self.vectorGroup.addTo(mapView.map);
@@ -71,18 +72,19 @@ var VelocityView = (function($, L, Models, Config) {
 
     VelocityView.prototype.redraw = function redraw(callback) {
         var self = this;
+
         // If we haven't been added to a map we don't bother redrawing
-        if (!self.mapView) {
+        if (!self.mapView || !self.points.length) {
             return this;
         }
 
-        var i = self.mapView.currentFrame;
-        self.vfs.withVelocityFrame(i, self.points, self.mapView.mapScale(),
-            function(data) {
-                drawVectors(data, self.vectorGroup);
-                callback && callback(data);
-            }
-        );
+        var options = {frame: self.mapView.currentFrame,
+                       points: self.points,
+                       mapScale: self.mapView.mapScale()};
+        self.vfs.withVelocityFrame(options, function(data) {
+            drawVectors(data, self.vectorGroup);
+            callback && callback(data);
+        });
     };
 
 

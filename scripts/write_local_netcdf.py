@@ -31,11 +31,14 @@ ocean_time = in_nc.variables['ocean_time'][:]
 out_nc.createVariable('ocean_time', ocean_time.dtype, 'ocean_time')
 out_nc.variables['ocean_time'][:] = ocean_time[:n_time_steps]
 
-for var_name in ['lon_psi', 'lat_psi', 'mask_psi']:
-    print(var_name)
-    var = in_nc.variables[var_name][:]
-    out_nc.createVariable(var_name, var.dtype, ('eta_psi', 'xi_psi'))
-    out_nc.variables[var_name][:] = var
+for prefix in ['lon', 'lat', 'mask']:
+    for suffix in ['psi', 'rho']:
+        var_name = "{}_{}".format(prefix, suffix)
+        print(var_name)
+        var = in_nc.variables[var_name][:]
+        out_nc.createVariable(var_name, var.dtype, ('eta_{}'.format(suffix),
+                                                    'xi_{}'.format(suffix)))
+        out_nc.variables[var_name][:] = var
 
 print('angle')
 angle = in_nc.variables['angle'][:]
