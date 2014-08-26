@@ -71,7 +71,7 @@ var SaltView = (function($, L, Models, Config) {
 
     function featureStyleFunc(options) {
         function featureStyleFuncInner(feature) {
-            var config = $.extend({}, options, feature.properties);
+            var config = $.extend({}, feature.properties, options);
             config.color = config.color || config.fillColor;
             return config;
         }

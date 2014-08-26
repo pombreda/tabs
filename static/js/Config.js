@@ -18,6 +18,8 @@ var Config = {
     contourOptions: {
         numSaltLevels: 10,
         logspaceSaltLevels: false,
+
+        // Parameters defined here override the data
         // Contour outline color (Undefined matches the fill color)
         // color: 'black',
         // Contour outline weight
