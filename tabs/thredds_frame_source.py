@@ -10,7 +10,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import netCDF4 as netCDF
 import numpy as np
-from mpl_toolkits.basemap import Basemap
 from shapely.geometry import Polygon, MultiPolygon
 
 from octant_lite import rot2d, shrink
@@ -39,16 +38,6 @@ class THREDDSFrameSource(object):
 
         self.dates = netCDF.num2date(self.nc.variables['ocean_time'][:],
                                      'seconds since 1970-01-01')
-
-        self.basemap = Basemap(llcrnrlon=-95.1,
-                               llcrnrlat=27.25,
-                               urcrnrlon=-87.5,
-                               urcrnrlat=30.95,
-                               projection='lcc',
-                               lat_0=30.0,
-                               lon_0=-90.0,
-                               resolution='i',
-                               area_thresh=0.)
 
         self._configure_velocity_grid()
         self._configure_salt_grid()
