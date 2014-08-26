@@ -34,6 +34,9 @@ MapView = (function($, L, Models, Config) {
 
         $.extend(self, defaults, config);
 
+        self._blit = L.layerGroup([]);
+        self._visible = L.layerGroup([]);
+
         self.currentFrame = 0;
 
         var mapboxTiles = L.tileLayer(self.tileLayerURL, {
@@ -64,12 +67,12 @@ MapView = (function($, L, Models, Config) {
         });
         self.tabsControl.addTo(self.map);
 
-        if (self.display.velocity) {
-            self.velocityView = VelocityView.velocityView(config).addTo(self);
-        }
-
         if (self.display.salinity) {
             self.saltView = SaltView.saltView(config).addTo(self);
+        }
+
+        if (self.display.velocity) {
+            self.velocityView = VelocityView.velocityView(config).addTo(self);
         }
 
         self.redraw();
@@ -152,26 +155,29 @@ MapView = (function($, L, Models, Config) {
     MapView.prototype.redraw = function redraw(callback) {
         var self = this;
 
-        if (this.display.velocity) {
-            this.velocityView && this.velocityView.redraw(
-                function vv_call(data) {
-                    self.tabsControl && self.tabsControl.updateInfo(
-                        {frame: self.currentFrame, date: data.date});
-                        callback(data);
+        if (self.display.salinity) {
+            self.saltView && self.saltView.redraw(
+                function salt_call(data) {
+                    if (self.display.velocity) {
+                        self.velocityView && self.velocityView.redraw(
+                            function vv_call(data) {
+                                self.tabsControl && self.tabsControl.updateInfo(
+                                    {frame: self.currentFrame,
+                                     date: data.date,
+                                     numSaltLevels: self.saltView.numSaltLevels
+                                });
+                                self.map.removeLayer(self._visible);
+                                self.map.addLayer(self._blit);
+                                self._visible = self._blit;
+                                self._blit = L.layerGroup();
+                                callback && callback(data);
+                            }
+                        );
+                    }
                 }
             );
         }
 
-        if (this.display.salinity) {
-            this.saltView && this.saltView.redraw(
-                function salt_call(data) {
-                    self.tabsControl && self.tabsControl.updateInfo(
-                        {frame: self.currentFrame, date: data.date,
-                         numSaltLevels: self.saltView.numSaltLevels});
-                        callback && callback(data);
-                }
-            );
-        }
     };
 
 

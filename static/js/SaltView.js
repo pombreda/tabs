@@ -3,7 +3,7 @@ var SaltView = (function($, L, Models, Config) {
     var defaults = {
 
         // layer containing salt contour polylines
-        saltGroup: L.geoJson(),
+        saltGroup: L.layerGroup(),
 
         // The number of contour levels to show
         numSaltLevels: Config.numSaltLevels,
@@ -33,9 +33,9 @@ var SaltView = (function($, L, Models, Config) {
         this.mapView = mapView;
 
         // Put the initial contours on the map
-        this.redraw(function initialCallback() {
-            self.saltGroup.addTo(mapView.map);
-        });
+        self.saltGroup.addTo(mapView.map);
+
+        this.redraw();
 
         return this;
     };
@@ -51,9 +51,10 @@ var SaltView = (function($, L, Models, Config) {
 
         var config = $.extend({frame: self.mapView.currentFrame},
                               self.contourOptions);
+        var styleFunc = featureStyleFunc(config);
         self.sfs.withSaltFrame(config, function(data) {
-            drawContours(data, self.saltGroup,
-                         featureStyleFunc(config));
+            self.saltGroup = L.geoJson(data.contours, {style: styleFunc});
+            self.mapView._blit.addLayer(self.saltGroup);
             callback && callback(data);
         });
         return self;
@@ -80,9 +81,8 @@ var SaltView = (function($, L, Models, Config) {
 
 
     function drawContours(data, saltGroup, styleFunc) {
-        saltGroup.clearLayers();
+        // saltGroup.clearLayers();
         saltGroup.addLayer(
-            L.geoJson(data.contours, {style: styleFunc})
         );
     }
 

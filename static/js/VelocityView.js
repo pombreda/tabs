@@ -42,31 +42,16 @@ var VelocityView = (function($, L, Models, Config) {
     VelocityView.prototype.addTo = function addTo(mapView) {
         var self = this;
 
-        this.mapView = mapView;
-
-        var style = {
-            color: this.color,
-            weight: this.weight
-        };
+        self.mapView = mapView;
+        self.vectorGroup.addTo(mapView.map);
 
         // put the initial velocity vectors on the map
-        this.vfs.withVelocityGridLocations({}, function(points) {
+        self.vfs.withVelocityGridLocations({}, function(points) {
             self.points = points;
-
-            var options = {frame: mapView.currentFrame,
-                           points: points,
-                           mapScale: mapView.mapScale()};
-            self.vfs.withVelocityFrame(options, function(data) {
-                var vectors = data.vectors;
-                for (var i = 0; i < vectors.length; i++) {
-                    var line = L.polyline(vectors[i], style);
-                    self.vectorGroup.addLayer(line);
-                }
-                self.vectorGroup.addTo(mapView.map);
-            });
+            self.redraw();
         });
 
-        return this;
+        return self;
     };
 
 
@@ -75,14 +60,27 @@ var VelocityView = (function($, L, Models, Config) {
 
         // If we haven't been added to a map we don't bother redrawing
         if (!self.mapView || !self.points.length) {
-            return this;
+            return self;
         }
+
+        var style = {
+            color: this.color,
+            weight: this.weight
+        };
 
         var options = {frame: self.mapView.currentFrame,
                        points: self.points,
                        mapScale: self.mapView.mapScale()};
+
         self.vfs.withVelocityFrame(options, function(data) {
-            drawVectors(data, self.vectorGroup);
+            var vectors = data.vectors;
+            var lines = [];
+            for (var i = 0; i < vectors.length; i++) {
+                lines.push(L.polyline(vectors[i], style));
+            }
+            // self.vectorGroup.clearLayers();
+            self.vectorGroup = L.layerGroup(lines);
+            self.mapView._blit.addLayer(self.vectorGroup);
             callback && callback(data);
         });
     };
@@ -97,13 +95,14 @@ var VelocityView = (function($, L, Models, Config) {
 
     // Private Functions
 
-    function drawVectors(data, lines) {
-        if (lines) {
-            lines.eachLayer(function _redraw(layer) {
-                layer.setLatLngs(this.latLngs[this.i++]);
-            }, {latLngs: data.vectors, i: 0});
-        }
-    }
+    // function drawVectors(data, lines) {
+        // lines.addLayer(L.layerGroup(
+        // if (lines) {
+            // lines.eachLayer(function _redraw(layer) {
+                // layer.setLatLngs(this.latLngs[this.i++]);
+            // }, {latLngs: data.vectors, i: 0});
+        // }
+    // }
 
 
 }(jQuery, L, Models, Config));

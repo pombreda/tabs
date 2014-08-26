@@ -19,7 +19,7 @@ var Config = {
         numSaltLevels: 10,
         logspaceSaltLevels: false,
         // Contour outline color (Undefined matches the fill color)
-        // color: 'black',
+        color: 'black',
         // Contour outline weight
         weight: 0.5,
         // Contour outline opacity
@@ -45,7 +45,7 @@ var Config = {
 
     // Which data is shown by default?
     display: {
-        velocity: false,
+        velocity: true,
         salinity: true
     }
 
