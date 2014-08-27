@@ -122,7 +122,7 @@ var VelocityView = (function($, L, Models, Config) {
         var minZoom = self.mapView.minZoom;
         var scale = Math.pow(4, zoom - minZoom);
         var n = Math.min(Math.ceil(density * scale), nPoints);
-        console.log('show', n, 'at zoom level', zoom);
+        // console.log('show', n, 'at zoom level', zoom);
         self.displayPoints = n;
     };
 
