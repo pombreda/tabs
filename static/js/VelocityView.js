@@ -58,12 +58,12 @@ var VelocityView = (function($, L, Models, Config) {
         }
 
         var style = {
-            color: this.color,
-            weight: this.weight
+            color: self.color,
+            weight: self.weight
         };
 
-        // put the initial velocity vectors on the map
-        this.vfs.withVelocityGridLocations({}, function(points) {
+        // Build the set of vectors to display
+        self.vfs.withVelocityGridLocations({}, function(points) {
             self.points = points;
 
             var options = {frame: mapView.currentFrame,
@@ -82,7 +82,7 @@ var VelocityView = (function($, L, Models, Config) {
 
         });
 
-        return this;
+        return self;
     };
 
 
