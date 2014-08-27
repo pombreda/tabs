@@ -17,6 +17,9 @@ var VelocityView = (function($, L, Models, Config) {
         // Degrees!
         arrowHeadAngle: Config.arrowHeadAngle,
 
+        // Number of vectors at full zoom
+        vectorDensity: Config.vectorDensity,
+
         // Vector artist parameters
         color: 'black',
         weight: 1
@@ -52,9 +55,8 @@ var VelocityView = (function($, L, Models, Config) {
         // put the initial velocity vectors on the map
         this.vfs.withVelocityGridLocations({}, function(points) {
 
-            var target_points = 500;
             var zoom = this.mapView.map.getZoom();
-            var display_points = Math.ceil(target_points * Math.pow(4, zoom - this.mapView.minZoom));
+            var display_points = Math.ceil(self.vectorDensity * Math.pow(4, zoom - this.mapView.minZoom));
             console.log('show', display_points);
 
             self.points = points.slice(0, display_points);
