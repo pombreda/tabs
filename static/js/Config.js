@@ -13,6 +13,7 @@ var Config = {
     barbDescriptions: {tail: 0, center: 0.5, head: 1.0},
     arrowHeadSize: 0.15,
     arrowHeadAngle: 60,
+    vectorDensity: 500,
 
     // Contour style
     contourOptions: {

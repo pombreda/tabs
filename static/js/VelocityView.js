@@ -2,8 +2,11 @@ var VelocityView = (function($, L, Models, Config) {
 
     var defaults = {
 
-        // layer containing vector polylines
+        // layer containing currently displayed vector polylines
         vectorGroup: L.layerGroup([]),
+
+        // Collection of all vector polylines
+        allVectors: [],
 
         // The locations of the data points
         points: [],
@@ -16,6 +19,9 @@ var VelocityView = (function($, L, Models, Config) {
 
         // Degrees!
         arrowHeadAngle: Config.arrowHeadAngle,
+
+        // Number of vectors at full zoom
+        vectorDensity: Config.vectorDensity,
 
         // Vector artist parameters
         color: 'black',
@@ -67,9 +73,13 @@ var VelocityView = (function($, L, Models, Config) {
                 var vectors = data.vectors;
                 for (var i = 0; i < vectors.length; i++) {
                     var line = L.polyline(vectors[i], style);
-                    self.vectorGroup.addLayer(line);
+                    self.allVectors.push(line);
                 }
             });
+
+            // Put the initial velocity vectors on the map
+            self.redraw();
+
         });
 
         return this;
@@ -88,9 +98,24 @@ var VelocityView = (function($, L, Models, Config) {
                        points: self.points,
                        mapScale: self.mapView.mapScale()};
         self.vfs.withVelocityFrame(options, function(data) {
+            self.updateDisplayPoints();
+            selectVectors(self.displayPoints, self.allVectors, self.vectorGroup);
             drawVectors(data, self.vectorGroup);
             callback && callback(data);
         });
+    };
+
+
+    VelocityView.prototype.updateDisplayPoints = function updateDisplayPts() {
+        var self = this;
+        var density = self.vectorDensity;
+        var nPoints = self.points.length;
+        var zoom = self.mapView.map.getZoom();
+        var minZoom = self.mapView.minZoom;
+        var scale = Math.pow(4, zoom - minZoom);
+        var n = Math.min(Math.ceil(density * scale), nPoints);
+        console.log('show', n, 'at zoom level', zoom);
+        self.displayPoints = n;
     };
 
 
@@ -103,13 +128,19 @@ var VelocityView = (function($, L, Models, Config) {
 
     // Private Functions
 
-    function drawVectors(data, lines) {
-        if (lines) {
-            lines.eachLayer(function _redraw(layer) {
-                layer.setLatLngs(this.latLngs[this.i++]);
-            }, {latLngs: data.vectors, i: 0});
-        }
+    function selectVectors(displayPoints, allVectors, vectorGroup) {
+        allVectors.slice(0, displayPoints)
+                  .forEach(vectorGroup.addLayer.bind(vectorGroup));
+        allVectors.slice(displayPoints)
+                  .forEach(vectorGroup.removeLayer.bind(vectorGroup));
     }
 
+
+    function drawVectors(velocityFrames, vectorGroup) {
+        var latLngs = velocityFrames.vectors;
+        vectorGroup.eachLayer(function _redraw(layer) {
+            layer.setLatLngs(latLngs[this.i++]);
+        }, {i: 0});
+    }
 
 }(jQuery, L, Models, Config));
