@@ -67,6 +67,17 @@ MapView = (function($, L, Models, Config) {
         self.distanceScaleControl = L.control.scale(
             Config.distanceScaleOptions).addTo(self.map);
 
+        // Add layer selector and hook up toggling of visibility flag
+        var lsc = self.layerSelectControl = L.control.layers([], [],
+            {position: 'topleft'}).addTo(self.map);
+        lsc.addToggledOverlay = function addToggledOverlay(key, layer, name) {
+            lsc.addOverlay(layer, name);
+            self.map.on(
+                'overlayadd', _setLayerVisibility(self, key, layer, true));
+            self.map.on(
+                'overlayremove', _setLayerVisibility(self, key, layer, false));
+        };
+
         // Add visualization layers
         self.saltView = SaltView.saltView(config).addTo(self);
         self.velocityView = VelocityView.velocityView(config).addTo(self);
@@ -176,6 +187,19 @@ MapView = (function($, L, Models, Config) {
 
     return {
         mapView: function mapView(config) { return new MapView(config); }
+    };
+
+
+    // Private functions
+
+    function _setLayerVisibility(mapView, key, layer, value) {
+        function setLayerVisibilityInner(e) {
+            if (e.layer === layer) {
+                mapView.visibleLayers[key] = value;
+                mapView.redraw();
+            }
+        }
+        return setLayerVisibilityInner;
     };
 
 }(jQuery, L, Models, Config));
