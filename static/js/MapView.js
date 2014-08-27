@@ -55,6 +55,14 @@ MapView = (function($, L, Models, Config) {
         });
 
 
+        // Things to do when changing zoom
+        this.map.on('zoomend', function(event) {
+            if (self.display.velocity) {
+                self.velocityView.removeFrom(self);
+                self.velocityView = VelocityView.velocityView(config).addTo(self);
+            }
+        });
+
         // Add map components
         this.tabsControl = new TABSControl.tabsControl({
             nFrames: self.nFrames,
