@@ -51,7 +51,9 @@ var VelocityView = (function($, L, Models, Config) {
     VelocityView.prototype.addTo = function addTo(mapView) {
         var self = this;
 
-        this.mapView = mapView;
+        self.mapView = mapView;
+
+        self.mapView.map.on('dragend', function() {self.redraw()});
 
         mapView.layerSelectControl.addToggledOverlay(
             'velocity', self.vectorGroup, 'Velocity');
