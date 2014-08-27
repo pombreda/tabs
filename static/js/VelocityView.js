@@ -44,6 +44,13 @@ var VelocityView = (function($, L, Models, Config) {
 
         this.mapView = mapView;
 
+        mapView.layerSelectControl.addToggledOverlay(
+            'velocity', self.vectorGroup, 'Velocity');
+
+        if (self.mapView.visibleLayers.velocity) {
+            self.vectorGroup.addTo(mapView.map);
+        }
+
         var style = {
             color: this.color,
             weight: this.weight
@@ -62,7 +69,6 @@ var VelocityView = (function($, L, Models, Config) {
                     var line = L.polyline(vectors[i], style);
                     self.vectorGroup.addLayer(line);
                 }
-                self.vectorGroup.addTo(mapView.map);
             });
         });
 

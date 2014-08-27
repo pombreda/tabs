@@ -32,10 +32,12 @@ var SaltView = (function($, L, Models, Config) {
 
         this.mapView = mapView;
 
-        // Put the initial contours on the map
-        this.redraw(function initialCallback() {
+        mapView.layerSelectControl.addToggledOverlay(
+            'salinity', self.saltGroup, 'Salinity');
+
+        if (self.mapView.visibleLayers.salinity) {
             self.saltGroup.addTo(mapView.map);
-        });
+        }
 
         return this;
     };
