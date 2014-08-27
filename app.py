@@ -8,6 +8,7 @@ from tabs import thredds_frame_source
 
 app = Flask(__name__)
 
+DECIMATE_FACTOR = 10
 RANDOM_STATE = np.random.get_state()
 
 
@@ -75,7 +76,7 @@ class THREDDS_CONNECTION(object):
 
 
 tc = THREDDS_CONNECTION(data_uri=thredds_frame_source.DEFAULT_DATA_URI,
-                        decimate_factor=60)
+                        decimate_factor=DECIMATE_FACTOR)
 
 
 def jsonify_dict_of_array(obj):
