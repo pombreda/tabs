@@ -103,9 +103,10 @@ var VelocityView = (function($, L, Models, Config) {
         self.vfs.withVelocityFrame(options, function(data) {
             var old = self.displayPoints;
             self.updateDisplayPoints();
-            selectVectors(
-                self.displayPoints, old, self.allVectors, self.vectorGroup);
-            drawVectors(data, self.vectorGroup);
+            var latLngBounds = self.mapView.map.getBounds();
+            selectVectors(latLngBounds, self.displayPoints, old,
+                          self.allVectors, self.vectorGroup);
+            drawVectors(latLngBounds, data, self.vectorGroup);
             callback && callback(data);
         });
     };
@@ -134,22 +135,29 @@ var VelocityView = (function($, L, Models, Config) {
     // Private Functions
 
     function selectVectors(
-            displayPoints, oldDisplayPoints, allVectors, vectorGroup) {
+            latLngBounds, displayPoints, oldDisplayPoints,
+            allVectors, vectorGroup) {
         if (displayPoints > oldDisplayPoints) {
+            // console.log(oldDisplayPoints + ' -> ' + displayPoints);
             allVectors.slice(oldDisplayPoints, displayPoints)
-                      .forEach(vectorGroup.addLayer.bind(vectorGroup));
+                .forEach(vectorGroup.addLayer.bind(vectorGroup));
         } else if (displayPoints < oldDisplayPoints) {
+            // console.log(oldDisplayPoints + ' -> ' + displayPoints);
             allVectors.slice(displayPoints, oldDisplayPoints)
                 .forEach(vectorGroup.removeLayer.bind(vectorGroup));
         }
     }
 
 
-    function drawVectors(velocityFrames, vectorGroup) {
+    function drawVectors(latLngBounds, velocityFrames, vectorGroup) {
         var latLngs = velocityFrames.vectors;
+        var i = 0;
         vectorGroup.eachLayer(function _redraw(layer) {
-            layer.setLatLngs(latLngs[this.i++]);
-        }, {i: 0});
+            var idx = i++;
+            if (latLngBounds.intersects(layer.getBounds())) {
+                layer.setLatLngs(latLngs[idx]);
+            }
+        });
     }
 
 }(jQuery, L, Models, Config));
