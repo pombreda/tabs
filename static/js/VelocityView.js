@@ -101,8 +101,10 @@ var VelocityView = (function($, L, Models, Config) {
                        points: self.points,
                        mapScale: self.mapView.mapScale()};
         self.vfs.withVelocityFrame(options, function(data) {
+            var old = self.displayPoints;
             self.updateDisplayPoints();
-            selectVectors(self.displayPoints, self.allVectors, self.vectorGroup);
+            selectVectors(
+                self.displayPoints, old, self.allVectors, self.vectorGroup);
             drawVectors(data, self.vectorGroup);
             callback && callback(data);
         });
@@ -131,11 +133,15 @@ var VelocityView = (function($, L, Models, Config) {
 
     // Private Functions
 
-    function selectVectors(displayPoints, allVectors, vectorGroup) {
-        allVectors.slice(0, displayPoints)
-                  .forEach(vectorGroup.addLayer.bind(vectorGroup));
-        allVectors.slice(displayPoints)
-                  .forEach(vectorGroup.removeLayer.bind(vectorGroup));
+    function selectVectors(
+            displayPoints, oldDisplayPoints, allVectors, vectorGroup) {
+        if (displayPoints > oldDisplayPoints) {
+            allVectors.slice(oldDisplayPoints, displayPoints)
+                      .forEach(vectorGroup.addLayer.bind(vectorGroup));
+        } else if (displayPoints < oldDisplayPoints) {
+            allVectors.slice(displayPoints, oldDisplayPoints)
+                .forEach(vectorGroup.removeLayer.bind(vectorGroup));
+        }
     }
 
 
