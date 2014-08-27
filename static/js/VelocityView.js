@@ -5,6 +5,9 @@ var VelocityView = (function($, L, Models, Config) {
         // layer containing currently displayed vector polylines
         vectorGroup: L.layerGroup([]),
 
+        // The number of vectors to display
+        displayPoints: 0,
+
         // Collection of all vector polylines
         allVectors: [],
 
