@@ -56,10 +56,11 @@ var VelocityView = (function($, L, Models, Config) {
         this.vfs.withVelocityGridLocations({}, function(points) {
 
             var zoom = this.mapView.map.getZoom();
-            var display_points = Math.ceil(self.vectorDensity * Math.pow(4, zoom - this.mapView.minZoom));
-            console.log('show', display_points);
+            var displayPoints = Math.ceil(self.vectorDensity * Math.pow(4, zoom - this.mapView.minZoom));
+            displayPoints = Math.min(displayPoints, points.length);
+            console.log('show', displayPoints, 'at zoom level', zoom);
 
-            self.points = points.slice(0, display_points);
+            self.points = points.slice(0, displayPoints);
 
             var options = {frame: mapView.currentFrame,
                            points: self.points,
