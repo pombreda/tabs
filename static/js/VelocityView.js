@@ -51,10 +51,16 @@ var VelocityView = (function($, L, Models, Config) {
 
         // put the initial velocity vectors on the map
         this.vfs.withVelocityGridLocations({}, function(points) {
-            self.points = points;
+
+            var target_points = 500;
+            var zoom = this.mapView.map.getZoom();
+            var display_points = Math.ceil(target_points * Math.pow(4, zoom - this.mapView.minZoom));
+            console.log('show', display_points);
+
+            self.points = points.slice(0, display_points);
 
             var options = {frame: mapView.currentFrame,
-                           points: points,
+                           points: self.points,
                            mapScale: mapView.mapScale()};
             self.vfs.withVelocityFrame(options, function(data) {
                 var vectors = data.vectors;
@@ -69,6 +75,17 @@ var VelocityView = (function($, L, Models, Config) {
         return this;
     };
 
+
+    VelocityView.prototype.removeFrom = function removeFrom(mapView) {
+        var self = this;
+
+        this.mapView = mapView;
+
+        // Clear the vector layers
+        this.vectorGroup.clearLayers()
+
+        return this;
+    };
 
     VelocityView.prototype.redraw = function redraw(callback) {
         var self = this;
