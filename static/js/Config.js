@@ -36,6 +36,7 @@ var Config = {
     minZoom: 7,
     defaultZoom: 7,
     maxZoom: 11,
+    mapCenter: [26.946556420812623, -92.8289794921875],
 
     // Pause between frames (in ms)
     delay: 90,
