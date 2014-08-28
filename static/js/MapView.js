@@ -2,7 +2,7 @@ MapView = (function($, L, Models, Config) {
 
     var defaults = {
 
-        display: Config.display,
+        visibleLayers: Config.visibleLayers,
 
         // Speed of animation (larger is slower)
         delay: Config.delay,
@@ -65,18 +65,22 @@ MapView = (function($, L, Models, Config) {
         self.tabsControl.addTo(self.map);
 
         self.distanceScaleControl = L.control.scale(
-            Config.distanceScaleOptions);
-        self.distanceScaleControl.addTo(self.map);
+            Config.distanceScaleOptions).addTo(self.map);
 
+        // Add layer selector and hook up toggling of visibility flag
+        var lsc = self.layerSelectControl = L.control.layers([], [],
+            {position: 'topleft'}).addTo(self.map);
+        lsc.addToggledOverlay = function addToggledOverlay(key, layer, name) {
+            lsc.addOverlay(layer, name);
+            self.map.on(
+                'overlayadd', _setLayerVisibility(self, key, layer, true));
+            self.map.on(
+                'overlayremove', _setLayerVisibility(self, key, layer, false));
+        };
 
         // Add visualization layers
-        if (self.display.velocity) {
-            self.velocityView = VelocityView.velocityView(config).addTo(self);
-        }
-
-        if (self.display.salinity) {
-            self.saltView = SaltView.saltView(config).addTo(self);
-        }
+        self.saltView = SaltView.saltView(config).addTo(self);
+        self.velocityView = VelocityView.velocityView(config).addTo(self);
 
         self.redraw();
 
@@ -158,7 +162,7 @@ MapView = (function($, L, Models, Config) {
     MapView.prototype.redraw = function redraw(callback) {
         var self = this;
 
-        if (this.display.velocity) {
+        if (this.visibleLayers.velocity) {
             this.velocityView && this.velocityView.redraw(
                 function vv_call(data) {
                     self.tabsControl && self.tabsControl.updateInfo(
@@ -168,7 +172,7 @@ MapView = (function($, L, Models, Config) {
             );
         }
 
-        if (this.display.salinity) {
+        if (this.visibleLayers.salinity) {
             this.saltView && this.saltView.redraw(
                 function salt_call(data) {
                     self.tabsControl && self.tabsControl.updateInfo(
@@ -183,6 +187,19 @@ MapView = (function($, L, Models, Config) {
 
     return {
         mapView: function mapView(config) { return new MapView(config); }
+    };
+
+
+    // Private functions
+
+    function _setLayerVisibility(mapView, key, layer, value) {
+        function setLayerVisibilityInner(e) {
+            if (e.layer === layer) {
+                mapView.visibleLayers[key] = value;
+                mapView.redraw();
+            }
+        }
+        return setLayerVisibilityInner;
     };
 
 }(jQuery, L, Models, Config));
