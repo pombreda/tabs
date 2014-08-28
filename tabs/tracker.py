@@ -65,14 +65,14 @@ def tracks_to_geojson(lonp, latp):
     return json.dumps(multiline.__geo_interface__)
 
 
-def tracker():
-    lonp, latp = run_tracpy()
+def tracker(ndays=15):
+    lonp, latp = run_tracpy(ndays=ndays)
     return tracks_to_geojson(lonp, latp)
 
 
 if __name__ == '__main__':
     JSON_OUT_FILE = os.path.join(os.path.dirname(__file__),
-                                '../static/data/json/tracks.json')
-    geojson = tracker()
+                                '../static/data/json/tracks_short.json')
+    geojson = tracker(ndays=1)
     with open(JSON_OUT_FILE, 'w') as out:
         out.write(geojson)
