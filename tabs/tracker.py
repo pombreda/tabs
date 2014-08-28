@@ -5,6 +5,10 @@ import os
 from shapely.geometry import LineString, MultiLineString
 import json
 
+# set matplotlib backend before importing tracpy to avoid warnings
+import matplotlib
+matplotlib.use("Agg")
+
 import tracpy
 from tracpy.tracpy_class import Tracpy
 
