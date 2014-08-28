@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from ..tracker import tracks_to_geojson
+from ..tracker import run_tracpy, tracks_to_geojson
 
 
 class TestTracker(TestCase):
@@ -15,3 +15,9 @@ class TestTracker(TestCase):
         mapping = json.loads(geojson)
         self.assertIn('coordinates', mapping)
         self.assertEqual(mapping['type'], 'MultiLineString')
+
+    def test_run_tracpy(self):
+        # FIXME: segfault is bad
+        lonp, latp = run_tracpy(ndays=1)
+        self.assertInstance(lonp, np.array)
+        self.assertInstance(latp, np.array)
