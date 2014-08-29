@@ -61,7 +61,6 @@ Models.velocityFrameSource = (function($, Trig, Config) {
         });
     };
 
-
     VFS_proto.withVelocityFrame = function withVelocityFrame(
             options, callback) {
         if (callback === undefined) console.log('Callback undefined');
@@ -152,6 +151,32 @@ Models.saltFrameSource = (function($, Config) {
 
     return function saltframeSource(config) {
         return new SaltFrameSource(config);
+    };
+
+
+}(jQuery, Config));
+
+Models.particleFrameSource = (function($, Config) {
+
+    var defaults = {
+    };
+
+    function ParticleFrameSource(config) {
+        $.extend(this, defaults, config);
+
+    };
+
+    PFS_proto = ParticleFrameSource.prototype;
+
+    PFS_proto.withParticleFrame = function withParticleFrame(config, callback) {
+        var self = this;
+        API.withParticleFrameJSON(config, function(obj) {
+            callback && callback(obj);
+        });
+    };
+
+    return function particleframeSource(config) {
+        return new ParticleFrameSource(config);
     };
 
 

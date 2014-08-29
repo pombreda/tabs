@@ -81,6 +81,7 @@ MapView = (function($, L, Models, Config) {
         // Add visualization layers
         self.saltView = SaltView.saltView(config).addTo(self);
         self.velocityView = VelocityView.velocityView(config).addTo(self);
+        self.particleView = ParticleView.particleView(config).addTo(self);
 
         self.redraw();
 

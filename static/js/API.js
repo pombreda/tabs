@@ -25,6 +25,11 @@ API = (function(Config, $) {
         withJSON(Config.velocityGridLocationsURL, callback);
     }
 
+    function withParticleTracksJSON(options, callback) {
+        if (callback === undefined) console.log('Callback undefined');
+        withJSON(Config.particleURL, callback);
+    }
+
     function withSaltFrameJSON(options, callback) {
         withJSON(urlForSaltFrame(options), callback);
     }

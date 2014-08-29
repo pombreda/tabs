@@ -6,6 +6,7 @@ var Config = {
     velocityFrameURL: '/data/thredds/velocity/step/',
     saltFrameURL: '/data/thredds/salt/step/',
     domainURL: '/data/prefetched/domain',
+    particleURL: '/data/prefetched/tracker',
     tileLayerURL: 'https://{s}.tiles.mapbox.com/v3/tabs-enthought.j3nibphe/{z}/{x}/{y}.png',
 
     // Vector style
@@ -63,8 +64,9 @@ var Config = {
 
     // Which data is shown by default?
     visibleLayers: {
-        velocity: true,
-        salinity: false
+        velocity: false,
+        salinity: false,
+	particles: true
     }
 
 };
