@@ -8,9 +8,15 @@ var ParticleView = (function($, L, Models, Config) {
         // The linestrings representing particle tracks
         tracks: [],
 
-        // Icon parameters
-	markerOptions: {
+        // Icon parameters for a normal particle
+	goodMarkerOptions: {
             color: 'black',
+            fillOpacity: 1.0,
+        },
+
+        // Icon parameters for a particle that has left the domain
+	badMarkerOptions: {
+            color: 'gray',
             fillOpacity: 1.0,
         },
 
@@ -46,7 +52,7 @@ var ParticleView = (function($, L, Models, Config) {
                 var lon = self.tracks[i][0][0];
                 var lat = self.tracks[i][0][1];
                 var marker = L.circleMarker(
-                    [lat, lon], self.markerOptions
+                    [lat, lon], self.goodMarkerOptions
                 ).setRadius(self.markerRadius);
                 self.particleGroup.addLayer(marker);
             }
@@ -68,6 +74,8 @@ var ParticleView = (function($, L, Models, Config) {
 
         var options = {frame: self.mapView.currentFrame,
                        tracks: self.tracks,
+                       goodMarkerOptions: self.goodMarkerOptions,
+                       badMarkerOptions: self.badMarkerOptions,
                        mapScale: self.mapView.mapScale()};
         updateParticles(options, self.particleGroup);
         callback && callback(null);
@@ -89,11 +97,12 @@ var ParticleView = (function($, L, Models, Config) {
             group.eachLayer(function _redraw(layer) {
                 var track = this.tracks[this.i++];
                 if (track.length < frame + 1) {
-                    layer.color = 'red';
+                    layer.setStyle(options.badMarkerOptions);
                 } else {
                     lon = track[frame][0];
                     lat = track[frame][1];
                     layer.setLatLng([lat, lon]);
+                    layer.setStyle(options.goodMarkerOptions);
                 }
             }, {tracks: options.tracks, i: 0});
         }
