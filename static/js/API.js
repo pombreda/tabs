@@ -38,7 +38,8 @@ API = (function(Config, $) {
         withJSON: withJSON,
         withVelocityFrameJSON: withVelocityFrameJSON,
         withVelocityGridLocationsJSON: withVelocityGridLocationsJSON,
-        withSaltFrameJSON: withSaltFrameJSON
+        withParticleTracksJSON: withParticleTracksJSON,
+        withSaltFrameJSON: withSaltFrameJSON,
     };
 
 

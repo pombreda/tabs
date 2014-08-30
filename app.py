@@ -144,5 +144,17 @@ def thredds_salt_frame(time_step):
         time_step, num_levels=num_levels, logspace=logspace)
     return json.dumps(salt)
 
+@app.route('/data/thredds/tracker')
+def particle_tracks():
+    """ Compute particle tracks """
+    from tabs.tracker import tracker
+    return tracker()
+
+@app.route('/data/prefetched/tracker')
+def static_particle_tracks():
+    """ Use precalculated particle tracks """
+    filename = 'data/json/tracks.json'
+    return redirect(url_for('static', filename=filename))
+
 if __name__ == '__main__':
     app.run(debug=True)

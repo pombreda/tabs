@@ -170,7 +170,7 @@ Models.particleFrameSource = (function($, Config) {
 
     PFS_proto.withParticleFrame = function withParticleFrame(config, callback) {
         var self = this;
-        API.withParticleFrameJSON(config, function(obj) {
+        API.withParticleTracksJSON(config, function(obj) {
             callback && callback(obj);
         });
     };
