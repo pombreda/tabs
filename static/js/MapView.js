@@ -183,6 +183,17 @@ MapView = (function($, L, Models, Config) {
                 }
             );
         }
+
+        if (this.visibleLayers.particles) {
+            this.particleView && this.particleView.redraw(
+                function particle_call(data) {
+                    self.tabsControl && self.tabsControl.updateInfo(
+                        // FIXME: particle JSON data doesn't have date
+                        {frame: self.currentFrame});
+                        callback && callback(data);
+                }
+            );
+        }
     };
 
 

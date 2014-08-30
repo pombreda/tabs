@@ -61,7 +61,6 @@ var ParticleView = (function($, L, Models, Config) {
     ParticleView.prototype.redraw = function redraw(callback) {
         var self = this;
 
-	console.log('redraw');
         // If we haven't been added to a map we don't bother redrawing
         if (!self.mapView || !self.tracks.length) {
             return this;
@@ -70,10 +69,8 @@ var ParticleView = (function($, L, Models, Config) {
         var options = {frame: self.mapView.currentFrame,
                        tracks: self.tracks,
                        mapScale: self.mapView.mapScale()};
-        self.vfs.withParticleFrame(options, function(data) {
-            drawVectors(data, self.vectorGroup);
-            callback && callback(data);
-        });
+        updateParticles(options, self.particleGroup);
+        callback && callback(null);
     };
 
 
@@ -86,11 +83,19 @@ var ParticleView = (function($, L, Models, Config) {
 
     // Private Functions
 
-    function drawVectors(data, lines) {
-        if (lines) {
-            lines.eachLayer(function _redraw(layer) {
-                layer.setLatLngs(this.latLngs[this.i++]);
-            }, {latLngs: data.vectors, i: 0});
+    function updateParticles(options, group) {
+        if (group) {
+            var frame = options.frame;
+            group.eachLayer(function _redraw(layer) {
+                var track = this.tracks[this.i++];
+                if (track.length < frame + 1) {
+                    layer.color = 'red';
+                } else {
+                    lon = track[frame][0];
+                    lat = track[frame][1];
+                    layer.setLatLng([lat, lon]);
+                }
+            }, {tracks: options.tracks, i: 0});
         }
     }
 
