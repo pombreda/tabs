@@ -5,11 +5,16 @@ var ParticleView = (function($, L, Models, Config) {
         // layer containing particle icons
         particleGroup: L.layerGroup([]),
 
-        // The locations of the data points
-        points: [],
+        // The linestrings representing particle tracks
+        tracks: [],
 
         // Icon parameters
-	iconSize: [16, 16],
+	markerOptions: {
+            color: 'black',
+            fillOpacity: 1.0,
+        },
+
+        markerRadius: 1,
 
     };
 
@@ -36,8 +41,17 @@ var ParticleView = (function($, L, Models, Config) {
         }
 
         self.vfs.withParticleFrame({}, function(data) {
-            // FIXME: just show static tracks
-            L.geoJson(data, {}).addTo(mapView.map);
+            self.tracks = data.coordinates;
+            for (var i = 0; i < self.tracks.length; i++) {
+                var lon = self.tracks[i][0][0];
+                var lat = self.tracks[i][0][1];
+                var marker = L.circleMarker(
+                    [lat, lon], self.markerOptions
+                ).setRadius(self.markerRadius);
+                self.particleGroup.addLayer(marker);
+            }
+            // show static tracks
+            //L.geoJson(data, {}).addTo(mapView.map);
         });
 
         return this;
@@ -49,12 +63,12 @@ var ParticleView = (function($, L, Models, Config) {
 
 	console.log('redraw');
         // If we haven't been added to a map we don't bother redrawing
-        if (!self.mapView || !self.points.length) {
+        if (!self.mapView || !self.tracks.length) {
             return this;
         }
 
         var options = {frame: self.mapView.currentFrame,
-                       points: self.points,
+                       tracks: self.tracks,
                        mapScale: self.mapView.mapScale()};
         self.vfs.withParticleFrame(options, function(data) {
             drawVectors(data, self.vectorGroup);
