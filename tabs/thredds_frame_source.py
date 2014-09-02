@@ -18,7 +18,8 @@ from octant_lite import rot2d, shrink
 TABS_DATA_URI = 'http://barataria.tamu.edu:8080/thredds/dodsC/NcML/txla_nesting6.nc'  # noqa
 CACHE_DATA_URI = os.path.join(os.path.dirname(__file__),
                               "../static/data/txla_nesting6.nc")
-DEFAULT_DATA_URI = CACHE_DATA_URI
+LOCAL_DATA_URI = '/raid/data/txla_nesting6/ocean_his_0001.nc'
+DEFAULT_DATA_URI = LOCAL_DATA_URI
 
 
 class THREDDSFrameSource(object):
