@@ -72,8 +72,8 @@ class THREDDSFrameSource(object):
             'lat': lat[self.velocity_idx, self.velocity_idy]}
 
     def _configure_salt_grid(self):
-        self.salt_lon = self.nc.variables['lon_rho'][:]
-        self.salt_lat = self.nc.variables['lat_rho'][:]
+        self.salt_lon = self.ncg.variables['lon_rho'][:]
+        self.salt_lat = self.ncg.variables['lat_rho'][:]
 
         # FIXME: What about this mask thing?
         # self.salt_mask = self.nc.variables['mask_rho'][:]
