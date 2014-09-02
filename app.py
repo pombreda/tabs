@@ -75,6 +75,7 @@ class THREDDS_CONNECTION(object):
 
 
 tc = THREDDS_CONNECTION(data_uri=thredds_frame_source.DEFAULT_DATA_URI,
+                        grdfile='/raid/data/txla_nesting6/txla_grd_v4_new.nc',
                         decimate_factor=60)
 
 
