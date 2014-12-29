@@ -64,6 +64,15 @@ MapView = (function($, L, Models, Config) {
         });
         self.tabsControl.addTo(self.map);
 
+        self.sliderControl = L.control.sliderControl({
+            position: "bottomright",
+            minValue: 0,
+            maxValue: self.nFrames,
+            slide: function(e, ui) {self.showTimeStep(ui.value);}
+        });
+        self.map.addControl(self.sliderControl);
+        self.sliderControl.startSlider();
+
         self.distanceScaleControl = L.control.scale(
             Config.distanceScaleOptions).addTo(self.map);
 
@@ -120,6 +129,7 @@ MapView = (function($, L, Models, Config) {
     // update vector data at each time step
     MapView.prototype.showTimeStep = function showTimeStep(i, callback) {
         this.currentFrame = i;
+        this.sliderControl.value(i);
         this.redraw(callback);
     };
 
