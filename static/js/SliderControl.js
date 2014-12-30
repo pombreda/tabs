@@ -54,22 +54,7 @@ L.Control.SliderControl = L.Control.extend({
             $('#slider-timestamp').html('');
         });
 
-        var options = this.options;
-        this.options.markers = [];
-
         //If a layer has been provided: calculate the min and max values for the slider
-        if (this._layer) {
-            this._layer.eachLayer(function (layer) {
-                if (options.minValue === -1) {
-                    options.minValue = layer._leaflet_id;
-                }
-                options.maxValue = layer._leaflet_id;
-                options.markers[layer._leaflet_id] = layer;
-            });
-            this.options = options;
-        } else {
-            // console.log("Error: You have to specify a layer via new SliderControl({layer: your_layer});");
-        }
         return sliderContainer;
     },
 
