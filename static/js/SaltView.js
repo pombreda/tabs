@@ -43,7 +43,7 @@ var SaltView = (function($, L, Models, Config) {
     };
 
 
-    SaltView.prototype.redraw = function redraw(callback) {
+    SaltView.prototype.redraw = function redraw(callback, shouldAbort) {
         var self = this;
 
         // If we haven't been added to a map we don't bother redrawing
@@ -53,7 +53,9 @@ var SaltView = (function($, L, Models, Config) {
 
         var config = $.extend({frame: self.mapView.currentFrame},
                               self.contourOptions);
+        if (shouldAbort()) { return; }
         self.sfs.withSaltFrame(config, function(data) {
+            if (shouldAbort()) { return; }
             drawContours(data, self.saltGroup,
                          featureStyleFunc(config));
             callback && callback(data);

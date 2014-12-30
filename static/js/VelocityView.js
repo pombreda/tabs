@@ -53,7 +53,9 @@ var VelocityView = (function($, L, Models, Config) {
 
         self.mapView = mapView;
 
-        self.mapView.map.on('dragend', function() {self.redraw()});
+        self.mapView.map.on('dragend', function() {
+            self.redraw(undefined, function() {return true;});
+        });
 
         mapView.layerSelectControl.addToggledOverlay(
             'velocity', self.vectorGroup, 'Velocity');
@@ -83,7 +85,7 @@ var VelocityView = (function($, L, Models, Config) {
             });
 
             // Put the initial velocity vectors on the map
-            self.redraw();
+            self.redraw(undefined, function() {return;});
 
         });
 
@@ -91,7 +93,7 @@ var VelocityView = (function($, L, Models, Config) {
     };
 
 
-    VelocityView.prototype.redraw = function redraw(callback) {
+    VelocityView.prototype.redraw = function redraw(callback, shouldAbort) {
         var self = this;
 
         // If we haven't been added to a map we don't bother redrawing
@@ -103,12 +105,15 @@ var VelocityView = (function($, L, Models, Config) {
                        points: self.points,
                        mapScale: self.mapView.mapScale()};
         self.vfs.withVelocityFrame(options, function(data) {
+            if (shouldAbort()) {
+                return self;
+            }
             var old = self.displayPoints;
             self.updateDisplayPoints();
             var latLngBounds = self.mapView.map.getBounds();
             selectVectors(latLngBounds, self.displayPoints, old,
-                          self.allVectors, self.vectorGroup);
-            drawVectors(latLngBounds, data, self.vectorGroup);
+                          self.allVectors, self.vectorGroup, shouldAbort);
+            drawVectors(latLngBounds, data, self.vectorGroup, shouldAbort);
             callback && callback(data);
         });
         return self;
@@ -139,23 +144,31 @@ var VelocityView = (function($, L, Models, Config) {
 
     function selectVectors(
             latLngBounds, displayPoints, oldDisplayPoints,
-            allVectors, vectorGroup) {
+            allVectors, vectorGroup, shouldAbort) {
         if (displayPoints > oldDisplayPoints) {
             // console.log(oldDisplayPoints + ' -> ' + displayPoints);
             allVectors.slice(oldDisplayPoints, displayPoints)
-                .forEach(vectorGroup.addLayer.bind(vectorGroup));
+                .forEach(function(l) {
+                    if (shouldAbort()) { return; }
+                    vectorGroup.addLayer(l);
+                });
         } else if (displayPoints < oldDisplayPoints) {
             // console.log(oldDisplayPoints + ' -> ' + displayPoints);
             allVectors.slice(displayPoints, oldDisplayPoints)
-                .forEach(vectorGroup.removeLayer.bind(vectorGroup));
+                .forEach(function(l) {
+                    if (shouldAbort()) { return; }
+                    vectorGroup.removeLayer(l);
+                });
         }
     }
 
 
-    function drawVectors(latLngBounds, velocityFrames, vectorGroup) {
+    function drawVectors(latLngBounds, velocityFrames, vectorGroup,
+                         shouldAbort) {
         var latLngs = velocityFrames.vectors;
         var i = 0;
         vectorGroup.eachLayer(function _redraw(layer) {
+            if (shouldAbort()) {return;}
             var idx = i++;
             if (latLngBounds.intersects(layer.getBounds())) {
                 layer.setLatLngs(latLngs[idx]);

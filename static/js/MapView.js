@@ -36,6 +36,8 @@ MapView = (function($, L, Models, Config) {
         $.extend(self, defaults, config);
 
         self.currentFrame = 0;
+        self.loadingFrame = -1;
+        self.loadingCount = 0;
 
         var mapboxTiles = L.tileLayer(self.tileLayerURL, {
             attribution: self.attribution,
@@ -92,7 +94,7 @@ MapView = (function($, L, Models, Config) {
         self.saltView = SaltView.saltView(config).addTo(self);
         self.velocityView = VelocityView.velocityView(config).addTo(self);
 
-        self.redraw();
+        self.redraw(undefined, function() {return;});
 
         // Register hotkeys
         window.onkeypress = function startStop(oKeyEvent) {
@@ -129,11 +131,41 @@ MapView = (function($, L, Models, Config) {
     };
 
 
+    MapView.prototype.isLoading = function isLoading(i, start_or_stop) {
+        var self = this;
+        if (self.loadingFrame === -1) {
+            console.log("begin loading " + i);
+            self.loadingFrame = i;
+        }
+        var owns = self.loadingFrame === i;
+        if (owns) {
+            if (start_or_stop === 'start') {
+                console.log("incr loading " + i);
+                self.loadingCount += 1;
+            } else if (start_or_stop === 'stop') {
+                console.log("decr loading " + i);
+                self.loadingCount -= 1;
+            }
+            if (self.loadingCount < 1) {
+                console.log("end loading " + i);
+                self.loadingFrame = -1;
+            }
+        }
+        return owns;
+    };
+
+
     // update vector data at each time step
     MapView.prototype.showTimeStep = function showTimeStep(i, callback) {
-        this.currentFrame = i;
-        this.sliderControl.value(i);
-        this.redraw(callback);
+        var self = this;
+        self.currentFrame = i;
+        self.sliderControl.value(i);
+        function shouldAbort(start_or_stop) {
+            var isLoading = self.isLoading(i, start_or_stop);
+            var condition = i !== self.currentFrame && !isLoading;
+            return condition;
+        }
+        self.redraw(callback, shouldAbort);
     };
 
 
@@ -174,30 +206,38 @@ MapView = (function($, L, Models, Config) {
     };
 
 
-    MapView.prototype.redraw = function redraw(callback) {
+    MapView.prototype.redraw = function(callback, shouldAbort) {
         var self = this;
-
-        if (this.visibleLayers.velocity) {
-            this.velocityView && this.velocityView.redraw(
-                function vv_call(data) {
-                    self.tabsControl && self.tabsControl.updateInfo(
-                        {frame: self.currentFrame, date: data.date});
+        setTimeout(function redraw() {
+            console.log(self.visibleLayers);
+            if (self.visibleLayers.velocity && !shouldAbort("start")) {
+                self.velocityView && self.velocityView.redraw(
+                    function vv_call(data) {
+                        if (shouldAbort()) { return; }
+                        self.tabsControl && self.tabsControl.updateInfo(
+                            {frame: self.currentFrame, date: data.date});
+                        shouldAbort("stop");
                         callback && callback(data);
-                }
-            );
-        }
+                    },
+                    shouldAbort
+                );
+            }
 
-        if (this.visibleLayers.salinity) {
-            this.saltView && this.saltView.redraw(
-                function salt_call(data) {
-                    self.tabsControl && self.tabsControl.updateInfo(
-                        {frame: self.currentFrame, date: data.date,
-                         numSaltLevels: self.saltView.numSaltLevels});
+            if (self.visibleLayers.salinity && !shouldAbort("start")) {
+                self.saltView && self.saltView.redraw(
+                    function salt_call(data) {
+                        if (shouldAbort()) { return ; }
+                        self.tabsControl && self.tabsControl.updateInfo(
+                            {frame: self.currentFrame, date: data.date,
+                             numSaltLevels: self.saltView.numSaltLevels});
+                        shouldAbort("stop");
                         callback && callback(data);
-                }
-            );
-        }
-    };
+                    },
+                    shouldAbort
+                );
+            }
+            }, 10);
+    }
 
 
     return {
@@ -211,7 +251,7 @@ MapView = (function($, L, Models, Config) {
         function setLayerVisibilityInner(e) {
             if (e.layer === layer) {
                 mapView.visibleLayers[key] = value;
-                mapView.redraw();
+                mapView.redraw(undefined, function() {return;});
             }
         }
         return setLayerVisibilityInner;
