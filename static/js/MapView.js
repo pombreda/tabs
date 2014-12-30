@@ -44,20 +44,20 @@ MapView = (function($, L, Models, Config) {
         });
 
         // Leaflet map object
-        this.map = L.map('map', {center: self.mapCenter,
+        self.map = L.map('map', {center: self.mapCenter,
                                  zoom: self.defaultZoom,
                                  layers: [mapboxTiles]});
 
         // Re-render when map conditions change
-        this.map.on('viewreset', function() {
+        self.map.on('viewreset', function() {
             if (!self.isRunning) {
-                self.redraw();
+                self.redraw(undefined, function() {return;});
             }
         });
 
 
         // Add map components
-        this.tabsControl = new TABSControl.tabsControl({
+        self.tabsControl = new TABSControl.tabsControl({
             nFrames: self.nFrames,
             onclick: function onclick() {
                 self.isRunning ? self.stop() : self.start();
@@ -105,25 +105,27 @@ MapView = (function($, L, Models, Config) {
 
 
     MapView.prototype.mapScale = function mapScale() {
+        var self = this;
         var scale = 0.5;     // vector scaling (m/s -> degrees) at default zoom
-        var zoom = this.map.getZoom();
-        return scale * Math.pow(2, this.defaultZoom - zoom);
+        var zoom = self.map.getZoom();
+        return scale * Math.pow(2, self.defaultZoom - zoom);
     };
 
 
     // hard-coded region of interest outline
     MapView.prototype.addRegionOutline = function addRegionOutline() {
+        var self = this;
         var featureLayer = L.mapbox.featureLayer()
-            .loadURL(this.domainURL)
+            .loadURL(self.domainURL)
             .on('ready', function(layer) {
-                this.eachLayer(function(poly) {
+                self.eachLayer(function(poly) {
                     poly.setStyle({
                         color: 'red',
                         fill: false
                     });
                 });
             })
-            .addTo(this.map);
+            .addTo(self.map);
     };
 
 
@@ -136,18 +138,19 @@ MapView = (function($, L, Models, Config) {
 
 
     MapView.prototype.start = function start() {
-        this.isRunning = true;
-        this.t = Date.now();
-        this._run();
+        var self = this;
+        self.isRunning = true;
+        self.t = Date.now();
+        self._run();
     };
 
 
     MapView.prototype._run = function _run() {
         var self = this;
-        if (this.isRunning) {
+        if (self.isRunning) {
             var t = Date.now();
             self.currentFrame = (self.currentFrame + 1) % self.nFrames;
-            this.showTimeStep(this.currentFrame, function() {
+            self.showTimeStep(self.currentFrame, function() {
                 var waitTime = Math.max(0, self.delay - (Date.now() - t));
 
                 // XXX: Remove eventually
@@ -166,7 +169,8 @@ MapView = (function($, L, Models, Config) {
 
 
     MapView.prototype.stop = function stop() {
-        this.isRunning = false;
+        var self = this;
+        self.isRunning = false;
     };
 
 

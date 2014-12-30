@@ -96,7 +96,7 @@ var VelocityView = (function($, L, Models, Config) {
 
         // If we haven't been added to a map we don't bother redrawing
         if (!self.mapView || !self.points.length) {
-            return this;
+            return self;
         }
 
         var options = {frame: self.mapView.currentFrame,
@@ -111,6 +111,7 @@ var VelocityView = (function($, L, Models, Config) {
             drawVectors(latLngBounds, data, self.vectorGroup);
             callback && callback(data);
         });
+        return self;
     };
 
 
