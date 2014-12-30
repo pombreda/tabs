@@ -1,5 +1,6 @@
 import json
 from threading import Timer, RLock
+import sys
 
 import numpy as np
 from flask import Flask, redirect, request, url_for
@@ -145,4 +146,11 @@ def thredds_salt_frame(time_step):
     return json.dumps(salt)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', default=5000, help="Port to listen on")
+    parser.add_argument('-a', '--all', dest='host', action='store_const',
+                        default='127.0.0.1', const='0.0.0.0',
+                        help="Listen on all interfaces")
+    args = parser.parse_args()
+    app.run(debug=True, host=args.host, port=args.port)
