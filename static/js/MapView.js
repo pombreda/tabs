@@ -19,6 +19,7 @@ MapView = (function($, L, Models, Config) {
         maxZoom: Config.maxZoom,
 
         tileLayerURL: Config.tileLayerURL,
+        referenceLayerURL: Config.referenceLayerURL,
 
         attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
 
@@ -42,10 +43,17 @@ MapView = (function($, L, Models, Config) {
             minZoom: self.minZoom
         });
 
+        var mapboxReference = L.tileLayer(self.referenceLayerURL, {
+            attribution: self.attribution,
+            maxZoom: self.maxZoom,
+            minZoom: self.minZoom
+        });
+
         // Leaflet map object
         this.map = L.map('map', {center: [27, -94],
                                  zoom: self.defaultZoom,
                                  layers: [mapboxTiles]});
+                                 // layers: [mapboxTiles, mapboxReference]});
 
         // Re-render when map conditions change
         this.map.on('viewreset', function() {
