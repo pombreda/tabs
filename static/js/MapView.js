@@ -70,7 +70,7 @@ MapView = (function($, L, Models, Config) {
         self.sliderControl = L.control.sliderControl({
             position: "bottomright",
             minValue: 0,
-            maxValue: self.nFrames,
+            maxValue: self.nFrames-1,
             slide: function(e, ui) {self.showTimeStep(ui.value);}
         });
         self.map.addControl(self.sliderControl);

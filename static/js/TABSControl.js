@@ -80,7 +80,7 @@ var TABSControl = (function() {
         },
 
         _renderFrameCount: function renderFrameCount(frame, nFrames) {
-            return 'Frame: ' + frame.padLeft(2) + ' / ' + nFrames;
+            return 'Frame: ' + frame.padLeft(2) + ' / ' + (nFrames - 1);
         },
 
         _renderSaltLevels: function renderSaltLevels(levels) {
