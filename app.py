@@ -1,6 +1,5 @@
 import json
 from threading import Timer, RLock
-import sys
 
 import numpy as np
 from flask import Flask, redirect, request, url_for
