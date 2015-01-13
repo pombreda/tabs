@@ -65,7 +65,6 @@ MapView = (function($, L, Models, Config) {
         self.tabsControl.addTo(self.map);
 
         self.sliderControl = L.control.sliderControl({
-            position: "bottomright",
             minValue: 0,
             maxValue: self.nFrames,
             slide: function(e, ui) {self.showTimeStep(ui.value);}
