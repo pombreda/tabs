@@ -154,9 +154,11 @@ if __name__ == '__main__':
                         help="Listen on all interfaces")
     parser.add_argument('-d', '--decimate', type=int, action='store',
                         default=60, help="Decimation factor")
+    parser.add_argument('-D', '--debug', action='store_true',
+                        help="Debug mode")
 
     args = parser.parse_args()
     if args.decimate:
         tc._fs_args['decimate_factor'] = args.decimate
         del tc.fs
-    app.run(debug=True, host=args.host, port=args.port)
+    app.run(debug=args.debug, host=args.host, port=args.port)
