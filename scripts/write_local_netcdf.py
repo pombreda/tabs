@@ -39,11 +39,13 @@ for prefix in ['lon', 'lat', 'mask']:
         out_nc.createVariable(var_name, var.dtype, ('eta_{}'.format(suffix),
                                                     'xi_{}'.format(suffix)))
         out_nc.variables[var_name][:] = var
+	del var
 
 print('angle')
 angle = in_nc.variables['angle'][:]
 out_nc.createVariable('angle', angle.dtype, ('eta_rho', 'xi_rho'))
 out_nc.variables['angle'][:] = angle
+del angle
 
 
 print('u')
@@ -53,14 +55,18 @@ u = np.hstack((u0, u1))
 u.mask = u == u0.fill_value
 out_nc.createVariable('u', u.dtype, ('ocean_time', 's_rho', 'eta_u', 'xi_u'))
 out_nc.variables['u'][:] = u
+del u, u0, u1
 
 print('v')
 v0 = in_nc.variables['v'][:n_time_steps, :1, :, :]
 v1 = in_nc.variables['v'][:n_time_steps, -1:, :, :]
 v = np.hstack((v0, v1))
+del v1
 v.mask = v == v0.fill_value
+del v0
 out_nc.createVariable('v', v.dtype, ('ocean_time', 's_rho', 'eta_v', 'xi_v'))
 out_nc.variables['v'][:] = v
+del v
 
 print('salt')
 salt0 = in_nc.variables['salt'][:n_time_steps, :1, :, :]
@@ -70,6 +76,7 @@ salt.mask = salt == salt0.fill_value
 out_nc.createVariable(
     'salt', salt.dtype, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
 out_nc.variables['salt'][:] = salt
+del salt
 
 in_nc.close()
 out_nc.close()
